@@ -6,6 +6,7 @@
 namespace sg::file
 {
     class PaletteFile;
+    class BshFile;
 }
 
 namespace sg
@@ -46,6 +47,7 @@ namespace sg
     private:
         std::unique_ptr<Window> m_window;
         std::unique_ptr<file::PaletteFile> m_paletteFile;
+        std::unique_ptr<file::BshFile> m_bshFile;
 
         bool m_quit{ false };
 

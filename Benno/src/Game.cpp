@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "OpenGL.h"
 #include "file/PaletteFile.h"
+#include "file/BshFile.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -43,6 +44,9 @@ void sg::Game::Init()
 
     m_paletteFile = std::make_unique<file::PaletteFile>("res/STADTFLD.COL");
     m_paletteFile->ReadContentFromChunkData();
+
+    m_bshFile = std::make_unique<file::BshFile>("res/SGFX/Stadtfld.bsh");
+    m_bshFile->ReadContentFromChunkData();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }
