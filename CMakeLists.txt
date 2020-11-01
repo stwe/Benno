@@ -12,10 +12,22 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${GLEW_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME}
-        Benno/src/App.cpp
+        Benno/src/chunk/Chunk.cpp
+        Benno/src/chunk/Chunk.h
+        Benno/src/file/BinaryFile.cpp
+        Benno/src/file/BinaryFile.h
+        Benno/src/file/PaletteFile.cpp
+        Benno/src/file/BinaryFile.h
+        Benno/src/Main.cpp
+        Benno/src/Game.cpp
+        Benno/src/Game.h
         Benno/src/Log.h
         Benno/src/OpenGL.cpp
         Benno/src/OpenGL.h
+        Benno/src/SgAssert.h
+        Benno/src/SgException.cpp
+        Benno/src/SgException.h
+        Benno/src/Config.h
         Benno/src/Window.cpp
         Benno/src/Window.h)
 

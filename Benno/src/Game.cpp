@@ -1,9 +1,10 @@
 #include <sstream>
 #include <SDL2/SDL.h>
 #include "Game.h"
+#include "Window.h"
 #include "Log.h"
 #include "OpenGL.h"
-#include "SgAssert.h"
+#include "file/PaletteFile.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -38,8 +39,10 @@ void sg::Game::Run()
 void sg::Game::Init()
 {
     m_window = std::make_unique<Window>(this);
-    SG_ASSERT(m_window, "[Game::Init()] Null pointer.");
     m_window->Init();
+
+    m_paletteFile = std::make_unique<file::PaletteFile>("res/STADTFLD.COL");
+    m_paletteFile->ReadContentFromChunkData();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }

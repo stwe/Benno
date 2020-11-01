@@ -18,15 +18,15 @@ int main()
     }
     catch (const sg::SgException& e)
     {
-        sg::Log::SG_LOG_ERROR("SgException {}", e.what());
+        sg::Log::SG_LOG_ERROR("[main()] SgException {}", e.what());
     }
     catch (const std::exception& e)
     {
-        sg::Log::SG_LOG_ERROR("Exception: {}", e.what());
+        sg::Log::SG_LOG_ERROR("[main()] Exception: {}", e.what());
     }
     catch (...)
     {
-        sg::Log::SG_LOG_ERROR("Unknown Exception. No details available.");
+        sg::Log::SG_LOG_ERROR("[main()] Unknown Exception. No details available.");
     }
 
     return EXIT_FAILURE;

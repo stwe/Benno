@@ -10,7 +10,7 @@ namespace sg
 
     struct WindowOptions
     {
-        std::string title{ "Sandbox" };
+        std::string title{ "BennoSandbox" };
         bool compatibleProfile{ false };
         bool debugContext{ true };
         bool antialiasing{ true };

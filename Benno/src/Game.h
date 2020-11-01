@@ -2,10 +2,16 @@
 
 #include <memory>
 #include "Config.h"
-#include "Window.h"
+
+namespace sg::file
+{
+    class PaletteFile;
+}
 
 namespace sg
 {
+    class Window;
+
     class Game
     {
     public:
@@ -39,6 +45,8 @@ namespace sg
 
     private:
         std::unique_ptr<Window> m_window;
+        std::unique_ptr<file::PaletteFile> m_paletteFile;
+
         bool m_quit{ false };
 
         //-------------------------------------------------

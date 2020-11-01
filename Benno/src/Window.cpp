@@ -46,8 +46,7 @@ void sg::Window::Init()
     Log::SG_LOG_DEBUG("[Window::Init()] Initialize SDL.");
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
-        Log::SG_LOG_FATAL("[Window::Init()] Unable to initialize SDL. Error: {}", SDL_GetError());
-        throw SG_EXCEPTION("[Window::Init()] Unable to initialize SDL.");
+        throw SG_EXCEPTION("[Window::Init()] Unable to initialize SDL. Error: " + std::string(reinterpret_cast<const char*>(SDL_GetError())));
     }
 
     // OpenGL version
@@ -80,8 +79,8 @@ void sg::Window::Init()
     }
 
     // create window
-    SG_ASSERT(m_parentGame->projectionOptions.width > 0, "The width should be greater than 0.");
-    SG_ASSERT(m_parentGame->projectionOptions.height > 0, "The height should be greater than 0.");
+    SG_ASSERT(m_parentGame->projectionOptions.width > 0, "[Window::Init()] The width should be greater than 0.");
+    SG_ASSERT(m_parentGame->projectionOptions.height > 0, "[Window::Init()] The height should be greater than 0.");
 
     Log::SG_LOG_DEBUG("[Window::Init()] Initialize SDL Window. Width: {}, Height {}",
         m_parentGame->projectionOptions.width, m_parentGame->projectionOptions.height);
@@ -97,8 +96,7 @@ void sg::Window::Init()
 
     if (!m_window)
     {
-        Log::SG_LOG_FATAL("[Window::Init()] Window could not be created. Error: {}", SDL_GetError());
-        throw SG_EXCEPTION("[Window::Init()] Window could not be created.");
+        throw SG_EXCEPTION("[Window::Init()] Window could not be created. Error: " + std::string(reinterpret_cast<const char*>(SDL_GetError())));
     }
 
     // create context
@@ -118,7 +116,7 @@ void sg::Window::Init()
     const auto err{ glewInit() };
     if (err != GLEW_OK)
     {
-        throw SG_EXCEPTION("[Window::Init()] Unable to initialize GLEW." + std::string(reinterpret_cast<const char*>(glewGetErrorString(err))));
+        throw SG_EXCEPTION("[Window::Init()] Unable to initialize GLEW. " + std::string(reinterpret_cast<const char*>(glewGetErrorString(err))));
     }
 
     // register debug callback function

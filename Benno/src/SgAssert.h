@@ -2,7 +2,7 @@
 
 #include "Log.h"
 
-#if defined(_WIN64) && defined(_MSC_VER)
+#if defined(_WIN64)
     #define SG_DEBUG_BREAK __debugbreak()
 #elif defined(__linux__) && defined(__GNUC__) && (__GNUC__ >= 7)
     #include <signal.h>
