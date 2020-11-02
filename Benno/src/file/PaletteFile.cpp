@@ -24,6 +24,15 @@ sg::file::PaletteFile::PaletteFile(const std::string& t_filePath)
 }
 
 //-------------------------------------------------
+// Getter / read-only
+//-------------------------------------------------
+
+const std::vector<sg::file::PaletteFile::Color32Bit>& sg::file::PaletteFile::GetPalette() const noexcept
+{
+    return m_palette;
+}
+
+//-------------------------------------------------
 // BinaryFile Interface
 //-------------------------------------------------
 

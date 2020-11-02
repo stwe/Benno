@@ -177,7 +177,9 @@ void sg::Window::UpdateOrthographicProjectionMatrix()
     (
         0.0f,
         static_cast<float>(m_parentGame->projectionOptions.width),
+        static_cast<float>(m_parentGame->projectionOptions.height),
         0.0f,
-        static_cast<float>(m_parentGame->projectionOptions.height)
+        1.0f,
+        -1.0f
     );
 }

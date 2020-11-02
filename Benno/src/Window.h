@@ -31,6 +31,8 @@ namespace sg
         //-------------------------------------------------
 
         [[nodiscard]] auto* GetSdlWindow() const { return m_window; }
+        [[nodiscard]] glm::mat4 GetProjectionMatrix() const { return m_projectionMatrix; }
+        [[nodiscard]] glm::mat4 GetOrthographicProjectionMatrix() const { return m_orthographicProjectionMatrix; }
 
         //-------------------------------------------------
         // Init

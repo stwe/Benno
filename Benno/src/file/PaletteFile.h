@@ -9,7 +9,7 @@ namespace sg::file
     class PaletteFile : public BinaryFile
     {
     public:
-        using Color32Bit = int32_t; // uint32_t
+        using Color32Bit = int32_t;
 
         //-------------------------------------------------
         // Ctors. / Dtor.
@@ -25,6 +25,12 @@ namespace sg::file
         PaletteFile& operator=(PaletteFile&& t_other) noexcept = delete;
 
         ~PaletteFile() = default;
+
+        //-------------------------------------------------
+        // Getter / read-only
+        //-------------------------------------------------
+
+        [[nodiscard]] const std::vector<Color32Bit>& GetPalette() const noexcept;
 
         //-------------------------------------------------
         // BinaryFile Interface
