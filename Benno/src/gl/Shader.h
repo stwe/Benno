@@ -32,19 +32,6 @@ namespace sg::gl
         [[nodiscard]] uint32_t GetProgramId() const noexcept;
 
         //-------------------------------------------------
-        // Add shader types
-        //-------------------------------------------------
-
-        void AddVertexShader(const std::string& t_shaderCode);
-        void AddFragmentShader(const std::string& t_shaderCode);
-
-        //-------------------------------------------------
-        // Link
-        //-------------------------------------------------
-
-        void LinkAndValidateProgram() const;
-
-        //-------------------------------------------------
         // Add uniforms
         //-------------------------------------------------
 
@@ -78,6 +65,19 @@ namespace sg::gl
         uint32_t m_fragmentShaderId{ 0 };
 
         std::unordered_map<std::string, int32_t> m_uniforms;
+
+        //-------------------------------------------------
+        // Add shader types
+        //-------------------------------------------------
+
+        void AddVertexShader(const std::string& t_shaderCode);
+        void AddFragmentShader(const std::string& t_shaderCode);
+
+        //-------------------------------------------------
+        // Link
+        //-------------------------------------------------
+
+        void LinkAndValidateProgram() const;
 
         //-------------------------------------------------
         // Helper

@@ -41,6 +41,73 @@ uint32_t sg::gl::Shader::GetProgramId() const noexcept
 }
 
 //-------------------------------------------------
+// Add uniforms
+//-------------------------------------------------
+
+void sg::gl::Shader::AddUniform(const std::string& t_uniformName)
+{
+    auto uniformId{ glGetUniformLocation(m_programId, t_uniformName.c_str()) };
+    SG_ASSERT(uniformId != -1, "[Shader::AddUniform()] Invalid uniform variable.");
+
+    m_uniforms.emplace(t_uniformName, uniformId);
+}
+
+//-------------------------------------------------
+// Bind / Unbind
+//-------------------------------------------------
+
+void sg::gl::Shader::Bind() const
+{
+    SG_ASSERT(m_programId, "[Shader::Bind()] Invalid shader program Id.");
+    glUseProgram(m_programId);
+}
+
+void sg::gl::Shader::Unbind()
+{
+    glUseProgram(0);
+}
+
+//-------------------------------------------------
+// Set uniforms
+//-------------------------------------------------
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const int32_t t_value)
+{
+    glUniform1i(m_uniforms.at(t_uniformName), t_value);
+}
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const float t_value)
+{
+    glUniform1f(m_uniforms.at(t_uniformName), t_value);
+}
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const bool t_value)
+{
+    // if value == true load 1 else 0 as float
+    glUniform1f(m_uniforms.at(t_uniformName), t_value ? 1.0f : 0.0f);
+}
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::vec2& t_value)
+{
+    glUniform2f(m_uniforms.at(t_uniformName), t_value.x, t_value.y);
+}
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::vec3& t_value)
+{
+    glUniform3f(m_uniforms.at(t_uniformName), t_value.x, t_value.y, t_value.z);
+}
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::vec4& t_value)
+{
+    glUniform4f(m_uniforms.at(t_uniformName), t_value.x, t_value.y, t_value.z, t_value.w);
+}
+
+void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::mat4& t_value)
+{
+    glUniformMatrix4fv(m_uniforms.at(t_uniformName), 1, GL_FALSE, value_ptr(t_value));
+}
+
+//-------------------------------------------------
 // Add shader types
 //-------------------------------------------------
 
@@ -123,73 +190,6 @@ void sg::gl::Shader::LinkAndValidateProgram() const
 
         throw SG_EXCEPTION("[Shader::LinkAndValidate()] Shader program validation error. Log: " + log);
     }
-}
-
-//-------------------------------------------------
-// Add uniforms
-//-------------------------------------------------
-
-void sg::gl::Shader::AddUniform(const std::string& t_uniformName)
-{
-    auto uniformId{ glGetUniformLocation(m_programId, t_uniformName.c_str()) };
-    SG_ASSERT(uniformId != -1, "[Shader::AddUniform()] Invalid uniform variable.");
-
-    m_uniforms.emplace(t_uniformName, uniformId);
-}
-
-//-------------------------------------------------
-// Bind / Unbind
-//-------------------------------------------------
-
-void sg::gl::Shader::Bind() const
-{
-    SG_ASSERT(m_programId, "[Shader::Bind()] Invalid shader program Id.");
-    glUseProgram(m_programId);
-}
-
-void sg::gl::Shader::Unbind()
-{
-    glUseProgram(0);
-}
-
-//-------------------------------------------------
-// Set uniforms
-//-------------------------------------------------
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const int32_t t_value)
-{
-    glUniform1i(m_uniforms.at(t_uniformName), t_value);
-}
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const float t_value)
-{
-    glUniform1f(m_uniforms.at(t_uniformName), t_value);
-}
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const bool t_value)
-{
-    // if value == true load 1 else 0 as float
-    glUniform1f(m_uniforms.at(t_uniformName), t_value ? 1.0f : 0.0f);
-}
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::vec2& t_value)
-{
-    glUniform2f(m_uniforms.at(t_uniformName), t_value.x, t_value.y);
-}
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::vec3& t_value)
-{
-    glUniform3f(m_uniforms.at(t_uniformName), t_value.x, t_value.y, t_value.z);
-}
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::vec4& t_value)
-{
-    glUniform4f(m_uniforms.at(t_uniformName), t_value.x, t_value.y, t_value.z, t_value.w);
-}
-
-void sg::gl::Shader::SetUniform(const std::string& t_uniformName, const glm::mat4& t_value)
-{
-    glUniformMatrix4fv(m_uniforms.at(t_uniformName), 1, GL_FALSE, value_ptr(t_value));
 }
 
 //-------------------------------------------------

@@ -9,6 +9,11 @@ namespace sg::file
     class BshFile;
 }
 
+namespace sg::renderer
+{
+    class MeshRenderer;
+}
+
 namespace sg
 {
     class Window;
@@ -48,6 +53,7 @@ namespace sg
         std::unique_ptr<Window> m_window;
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::unique_ptr<file::BshFile> m_bshFile;
+        std::unique_ptr<renderer::MeshRenderer> m_renderer;
 
         bool m_quit{ false };
 

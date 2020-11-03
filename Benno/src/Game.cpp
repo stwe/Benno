@@ -6,6 +6,8 @@
 #include "OpenGL.h"
 #include "file/PaletteFile.h"
 #include "file/BshFile.h"
+#include "file/BshTexture.h"
+#include "renderer/MeshRenderer.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -45,10 +47,12 @@ void sg::Game::Init()
     m_paletteFile = std::make_unique<file::PaletteFile>("res/STADTFLD.COL");
     m_paletteFile->ReadContentFromChunkData();
 
-    m_bshFile = std::make_unique<file::BshFile>("res/SGFX/Stadtfld.bsh");
+    m_bshFile = std::make_unique<file::BshFile>("res/GFX/Stadtfld.bsh", m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
+
+    m_renderer = std::make_unique<renderer::MeshRenderer>();
 }
 
 void sg::Game::GameLoop()
@@ -136,7 +140,14 @@ void sg::Game::Render()
     OpenGL::Clear();
     OpenGL::EnableAlphaBlending();
 
+    // Galgen
+    const auto& texture = m_bshFile->GetBshTexture(5372);
 
+    m_renderer->Render(
+        250, 250,
+        texture,
+        m_window->GetOrthographicProjectionMatrix()
+    );
 
     OpenGL::DisableBlending();
 }
