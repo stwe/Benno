@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "SgException.h"
 #include "OpenGL.h"
+#include "gl/Texture.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -23,6 +24,13 @@ sg::file::BshFile::BshFile(const std::string& t_filePath, const std::vector<Pale
     {
         throw SG_EXCEPTION("[BshFile::BshFile()] Invalid Chunk Id.");
     }
+}
+
+sg::file::BshFile::~BshFile()
+{
+    Log::SG_LOG_DEBUG("[BshFile::~BshFile()] Destruct BshFile.");
+
+    CleanUp();
 }
 
 //-------------------------------------------------
@@ -141,15 +149,12 @@ void sg::file::BshFile::CreateGLTextures()
 {
     for (const auto& texture : m_bshTextures)
     {
-        uint32_t texId;
-        glGenTextures(1, &texId);
+        const auto textureId{ gl::Texture::GenerateNewTextureId() };
 
-        glBindTexture(GL_TEXTURE_2D, texId);
+        gl::Texture::Bind(textureId);
+        gl::Texture::UseNoFilter();
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-        texture->textureId = texId;
+        texture->textureId = textureId;
 
         glTexImage2D(
             GL_TEXTURE_2D,
@@ -163,6 +168,27 @@ void sg::file::BshFile::CreateGLTextures()
             texture->texturePixels.data()
         );
 
-        glBindTexture(GL_TEXTURE_2D, 0);
+        gl::Texture::Unbind();
     }
+}
+
+//-------------------------------------------------
+// CleanUp
+//-------------------------------------------------
+
+void sg::file::BshFile::CleanUp() const
+{
+    Log::SG_LOG_DEBUG("[BshFile::CleanUp()] Clean up OpenGL textures.");
+
+    auto i{ 0 };
+    for (const auto& texture : m_bshTextures)
+    {
+        if (texture->textureId)
+        {
+            glDeleteTextures(1, &texture->textureId);
+            i++;
+        }
+    }
+
+    Log::SG_LOG_DEBUG("[BshFile::CleanUp()] {} OpenGL textures was deleted.", i);
 }

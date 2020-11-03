@@ -25,7 +25,7 @@ namespace sg::file
         BshFile& operator=(const BshFile& t_other) = delete;
         BshFile& operator=(BshFile&& t_other) noexcept = delete;
 
-        ~BshFile() = default;
+        ~BshFile();
 
         //-------------------------------------------------
         // Getter / read-only
@@ -60,5 +60,11 @@ namespace sg::file
         void DecodeTextures();
         void DecodeTexture(uint32_t t_offset);
         void CreateGLTextures();
+
+        //-------------------------------------------------
+        // CleanUp
+        //-------------------------------------------------
+
+        void CleanUp() const;
     };
 }
