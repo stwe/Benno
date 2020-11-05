@@ -40,16 +40,6 @@ project "Benno"
         "%{prj.name}/src"
     }
 
-    links
-    {
-
-    }
-
-    linkoptions
-    {
-        "/IGNORE:4099"
-    }
-
     filter "system:windows"
         systemversion "latest"
 
