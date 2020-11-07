@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "renderer/Zoom.h"
 
 namespace sg
 {
@@ -31,5 +32,15 @@ namespace sg
         int height{ 768 };
         float nearPlane{ 0.1f };
         float farPlane{ 5000.0f };
+    };
+
+    //-------------------------------------------------
+    // Game options
+    //-------------------------------------------------
+
+    struct GameOptions
+    {
+        renderer::Zoom currentZoom{ renderer::Zoom::SGFX };
+        std::string resourcePath{ "E:\\Anno" };
     };
 }

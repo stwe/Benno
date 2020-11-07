@@ -47,7 +47,8 @@ void sg::Game::Init()
     m_paletteFile = std::make_unique<file::PaletteFile>("res/STADTFLD.COL");
     m_paletteFile->ReadContentFromChunkData();
 
-    m_bshFile = std::make_unique<file::BshFile>("res/GFX/Stadtfld.bsh", m_paletteFile->GetPalette());
+    auto stadtfldFile{ m_files.GetFile(gameOptions.currentZoom, "STADTFLD").value() };
+    m_bshFile = std::make_unique<file::BshFile>(stadtfldFile.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);

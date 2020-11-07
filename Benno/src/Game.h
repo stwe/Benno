@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Config.h"
+#include "file/Files.h"
 
 namespace sg::file
 {
@@ -27,6 +28,7 @@ namespace sg
 
         WindowOptions windowOptions{};
         ProjectionOptions projectionOptions{};
+        GameOptions gameOptions{};
 
         //-------------------------------------------------
         // Ctors. / Dtor.
@@ -54,6 +56,8 @@ namespace sg
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::unique_ptr<file::BshFile> m_bshFile;
         std::unique_ptr<renderer::MeshRenderer> m_renderer;
+
+        file::Files m_files{ gameOptions.resourcePath };
 
         bool m_quit{ false };
 
