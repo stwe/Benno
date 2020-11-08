@@ -41,6 +41,6 @@ namespace sg
     struct GameOptions
     {
         renderer::Zoom currentZoom{ renderer::Zoom::SGFX };
-        std::string resourcePath{ "E:\\Anno" };
+        std::string resourcePath{ "/home/steffen/Anno" };
     };
 }
