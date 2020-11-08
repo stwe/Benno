@@ -1,8 +1,8 @@
 #include "BshFile.h"
 #include "BshTexture.h"
 #include "Log.h"
-#include "SgException.h"
 #include "OpenGL.h"
+#include "SgException.h"
 #include "gl/Texture.h"
 
 //-------------------------------------------------

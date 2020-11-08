@@ -5,22 +5,37 @@
 
 namespace sg::renderer
 {
-    enum class Zoom
+    struct Zoom
     {
-        SGFX, MGFX, GFX
-    };
+        enum class ZoomId
+        {
+            SGFX, MGFX, GFX, NOT_ZOOMABLE
+        };
 
-    inline static std::vector<Zoom> const ZOOM_TYPES{ Zoom::SGFX, Zoom::MGFX, Zoom::GFX };
+        inline static std::vector<ZoomId> const ZOOM_TABLE{ ZoomId::SGFX, ZoomId::MGFX, ZoomId::GFX };
 
-    inline static std::unordered_map<std::string, Zoom> const STRING_TO_ZOOM{
-        { "SGFX", Zoom::SGFX },
-        { "MGFX", Zoom::MGFX },
-        { "GFX", Zoom::GFX }
-    };
+        inline static std::unordered_map<ZoomId, std::string> const ZOOM_STRINGS{
+            { ZoomId::SGFX, "SGFX" },
+            { ZoomId::MGFX, "MGFX" },
+            { ZoomId::GFX, "GFX" }
+        };
 
-    inline static std::unordered_map<Zoom, std::string> const ZOOM_TO_STRING{
-        { Zoom::SGFX, "SGFX" },
-        { Zoom::MGFX, "MGFX" },
-        { Zoom::GFX, "GFX" }
+        static const std::string& ZoomToString(const ZoomId t_zoomId)
+        {
+            return ZOOM_STRINGS.find(t_zoomId)->second;
+        }
+
+        inline static std::unordered_map<std::string, ZoomId> const STRING_ZOOM_IDS{
+            { "SGFX", ZoomId::SGFX },
+            { "MGFX", ZoomId::MGFX },
+            { "GFX", ZoomId::GFX }
+        };
+
+        static ZoomId StringToZoomId(const std::string& t_zoomString)
+        {
+            const auto it{ STRING_ZOOM_IDS.find(t_zoomString) };
+            return it == STRING_ZOOM_IDS.end() ?
+                ZoomId::NOT_ZOOMABLE : it->second;
+        }
     };
 }

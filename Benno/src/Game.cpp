@@ -44,10 +44,10 @@ void sg::Game::Init()
     m_window = std::make_unique<Window>(this);
     m_window->Init();
 
-    m_paletteFile = std::make_unique<file::PaletteFile>("res/STADTFLD.COL");
+    m_paletteFile = std::make_unique<file::PaletteFile>(m_files.GetColFile().path);
     m_paletteFile->ReadContentFromChunkData();
 
-    auto stadtfldFile{ m_files.GetFile(gameOptions.currentZoom, "STADTFLD").value() };
+    auto stadtfldFile{ m_files.GetBshFile(gameOptions.currentZoomId, file::BshFile::BshFileNameId::STADTFLD).value() };
     m_bshFile = std::make_unique<file::BshFile>(stadtfldFile.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 

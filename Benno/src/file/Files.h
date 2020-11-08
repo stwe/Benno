@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include "BshFile.h"
 #include "renderer/Zoom.h"
 
 namespace sg::file
@@ -10,8 +11,16 @@ namespace sg::file
     struct BennoFile
     {
         std::string fullFilename;
-        std::string stem;
         std::string path;
+
+        BennoFile() = default;
+        virtual ~BennoFile() = default;
+    };
+
+    struct BennoZoomableBshFile : BennoFile
+    {
+        renderer::Zoom::ZoomId zoomId{ renderer::Zoom::ZoomId::NOT_ZOOMABLE };
+        BshFile::BshFileNameId bshFileNameId{ BshFile::BshFileNameId::INVALID };
     };
 
     class Files
@@ -36,13 +45,14 @@ namespace sg::file
         // Getter read-only
         //-------------------------------------------------
 
-        [[nodiscard]] std::optional<BennoFile> GetFile(renderer::Zoom t_zoom, const std::string& t_stem) const;
+        [[nodiscard]] std::optional<BennoZoomableBshFile> GetBshFile(renderer::Zoom::ZoomId t_zoomId, BshFile::BshFileNameId t_bshFileNameId) const;
+        [[nodiscard]] const BennoFile& GetColFile() const;
 
     protected:
 
     private:
-        std::unordered_multimap<renderer::Zoom, BennoFile> m_bshFiles;
-        std::vector<std::string> m_filesToCheck{ "STADTFLD", "EFFEKTE", "FISCHE" };
+        std::unordered_multimap<renderer::Zoom::ZoomId, BennoZoomableBshFile> m_bshFiles;
+        BennoFile m_colFile;
 
         //-------------------------------------------------
         // Init
@@ -51,11 +61,17 @@ namespace sg::file
         void InitDirectoryTree(const std::string& t_path);
 
         //-------------------------------------------------
-        // Helper
+        // Check for files
         //-------------------------------------------------
 
-        bool CheckFile(renderer::Zoom t_zoom, const std::string& t_stem);
-        std::optional<std::string> GetPath(renderer::Zoom t_zoom, const std::string& t_stem);
+        void CheckForBshFiles();
+        bool CheckForBshFile(renderer::Zoom::ZoomId t_zoomId, BshFile::BshFileNameId t_bshFileNameId);
+        void CheckForColFile() const;
+        std::optional<std::string> GetBshFilePath(renderer::Zoom::ZoomId t_zoomId, BshFile::BshFileNameId t_bshFileNameId);
+
+        //-------------------------------------------------
+        // Helper
+        //-------------------------------------------------
 
         [[nodiscard]] std::string ToLowerCase(const std::string& t_string) const;
         [[nodiscard]] std::string ToUpperCase(const std::string& t_string) const;

@@ -10,9 +10,9 @@
 
 sg::file::Files::Files(const std::string& t_path)
 {
-    InitDirectoryTree(t_path);
-
     Log::SG_LOG_DEBUG("[Files::Files()] Create Files.");
+
+    InitDirectoryTree(t_path);
 }
 
 sg::file::Files::~Files()
@@ -24,18 +24,23 @@ sg::file::Files::~Files()
 // Getter read-only
 //-------------------------------------------------
 
-std::optional<sg::file::BennoFile> sg::file::Files::GetFile(const renderer::Zoom t_zoom, const std::string& t_stem) const
+std::optional<sg::file::BennoZoomableBshFile> sg::file::Files::GetBshFile(const renderer::Zoom::ZoomId t_zoomId, const BshFile::BshFileNameId t_bshFileNameId) const
 {
-    const auto its{ m_bshFiles.equal_range(t_zoom) };
+    const auto its{ m_bshFiles.equal_range(t_zoomId) };
     for (auto it{ its.first }; it != its.second; ++it)
     {
-        if (it->second.stem == ToUpperCase(t_stem))
+        if (it->second.bshFileNameId == t_bshFileNameId)
         {
             return it->second;
         }
     }
 
     return std::nullopt;
+}
+
+const sg::file::BennoFile& sg::file::Files::GetColFile() const
+{
+    return m_colFile;
 }
 
 //-------------------------------------------------
@@ -59,24 +64,29 @@ void sg::file::Files::InitDirectoryTree(const std::string& t_path)
                     // BSH files
                     if (extension == ".bsh")
                     {
-                        const auto it{ renderer::STRING_TO_ZOOM.find(entry.path().filename().string()) };
-                        if (it != renderer::STRING_TO_ZOOM.end())
+                        const auto zoomId{ renderer::Zoom::StringToZoomId(ToUpperCase(entry.path().filename().string())) };
+
+                        if (zoomId != renderer::Zoom::ZoomId::NOT_ZOOMABLE)
                         {
-                            BennoFile bennoFile;
-                            bennoFile.fullFilename = f.path().filename().string();
-                            bennoFile.stem = ToUpperCase(f.path().stem().string());
-                            bennoFile.path = f.path().string();
+                            BennoZoomableBshFile bshFile;
+                            bshFile.fullFilename = f.path().filename().string();  // e.g. stadtfld.bsh
+                            bshFile.path = f.path().string();                     // e.g. E:\\Anno\\GFX\\stadtfld.bsh
+                            bshFile.zoomId = zoomId;
+                            bshFile.bshFileNameId = BshFile::StringToBshFileNameId(ToUpperCase(f.path().stem().string()));
 
-                            m_bshFiles.emplace(it->second, bennoFile);
+                            m_bshFiles.emplace(bshFile.zoomId, bshFile);
                         }
-
-                        // todo: other bsh files
+                        else
+                        {
+                            // todo: other (not zoomable) bsh files
+                        }
                     }
 
                     // COL file
                     if (extension == ".col")
                     {
-                        
+                        m_colFile.fullFilename = f.path().filename().string();
+                        m_colFile.path = f.path().string();
                     }
 
                     // GAM files
@@ -89,41 +99,43 @@ void sg::file::Files::InitDirectoryTree(const std::string& t_path)
         }
     }
 
-    Log::SG_LOG_DEBUG("[Files::InitDirectoryTree()] SGFX BSH files count: {}", m_bshFiles.count(renderer::Zoom::SGFX));
-    Log::SG_LOG_DEBUG("[Files::InitDirectoryTree()] MGFX BSH files count: {}", m_bshFiles.count(renderer::Zoom::MGFX));
-    Log::SG_LOG_DEBUG("[Files::InitDirectoryTree()] GFX BSH files count: {}", m_bshFiles.count(renderer::Zoom::GFX));
-
-    Log::SG_LOG_DEBUG("[Files::InitDirectoryTree()] Check the existence of some BSH files.");
-    auto result{ true };
-    for (const auto& file : m_filesToCheck)
-    {
-        for (auto zoomType : renderer::ZOOM_TYPES)
-        {
-            const auto check{ CheckFile(zoomType, file) };
-            if (!check)
-            {
-                result = false;
-            }
-
-            Log::SG_LOG_INFO("[Files::InitDirectoryTree()] Does the file {}/{} exist? [{}]", renderer::ZOOM_TO_STRING.at(zoomType), file, result);
-        }
-    }
-
-    if (!result)
-    {
-        throw SG_EXCEPTION("[Files::InitDirectoryTree()] A file could not be found. Check the error message above.");
-    }
+    CheckForBshFiles();
+    CheckForColFile();
 
     Log::SG_LOG_DEBUG("[Files::InitDirectoryTree()] Filesystem successfully initialized.");
 }
 
 //-------------------------------------------------
-// Helper
+// Check for files
 //-------------------------------------------------
 
-bool sg::file::Files::CheckFile(const renderer::Zoom t_zoom, const std::string& t_stem)
+void sg::file::Files::CheckForBshFiles()
 {
-    auto path{ GetPath(t_zoom, t_stem) };
+    Log::SG_LOG_DEBUG("[Files::CheckForBshFiles()] Check for of all zoomable BSH files.");
+    auto result{ true };
+    for (const auto& bshFileId : BshFile::BSH_FILENAME_ID_TABLE)
+    {
+        for (auto zoomId : renderer::Zoom::ZOOM_TABLE)
+        {
+            const auto check{ CheckForBshFile(zoomId, bshFileId) };
+            if (!check)
+            {
+                result = false;
+            }
+
+            Log::SG_LOG_INFO("[Files::CheckForBshFiles()] Does the file {}/{} exist? [{}]", renderer::Zoom::ZoomToString(zoomId), BshFile::BshFileNameIdToString(bshFileId), result);
+        }
+    }
+
+    if (!result)
+    {
+        throw SG_EXCEPTION("[Files::CheckForBshFiles()] One or more BSH file(s) could not be found. Check the error messages above.");
+    }
+}
+
+bool sg::file::Files::CheckForBshFile(const renderer::Zoom::ZoomId t_zoomId, const BshFile::BshFileNameId t_bshFileNameId)
+{
+    auto path{ GetBshFilePath(t_zoomId, t_bshFileNameId) };
     if (path.has_value())
     {
         const std::ifstream f(path.value());
@@ -133,12 +145,31 @@ bool sg::file::Files::CheckFile(const renderer::Zoom t_zoom, const std::string& 
     return false;
 }
 
-std::optional<std::string> sg::file::Files::GetPath(const renderer::Zoom t_zoom, const std::string& t_stem)
+void sg::file::Files::CheckForColFile() const
 {
-    const auto its{ m_bshFiles.equal_range(t_zoom) };
+    auto result{ true };
+    if (m_colFile.path.empty() || m_colFile.fullFilename.empty())
+    {
+        result = false;
+    }
+    else
+    {
+        const std::ifstream f(m_colFile.path);
+        result = f.good();
+    }
+
+    if (!result)
+    {
+        throw SG_EXCEPTION("[Files::CheckForColFile()] The Palette file could not be found.");
+    }
+}
+
+std::optional<std::string> sg::file::Files::GetBshFilePath(const renderer::Zoom::ZoomId t_zoomId, const BshFile::BshFileNameId t_bshFileNameId)
+{
+    const auto its{ m_bshFiles.equal_range(t_zoomId) };
     for (auto it{ its.first }; it != its.second; ++it)
     {
-        if (it->second.stem == ToUpperCase(t_stem))
+        if (it->second.bshFileNameId == t_bshFileNameId)
         {
             return it->second.path;
         }
@@ -146,6 +177,10 @@ std::optional<std::string> sg::file::Files::GetPath(const renderer::Zoom t_zoom,
 
     return std::nullopt;
 }
+
+//-------------------------------------------------
+// Helper
+//-------------------------------------------------
 
 std::string sg::file::Files::ToLowerCase(const std::string& t_string) const
 {
