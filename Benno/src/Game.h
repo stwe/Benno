@@ -2,22 +2,13 @@
 
 #include <memory>
 #include "Config.h"
-#include "file/Files.h"
-
-namespace sg::file
-{
-    class PaletteFile;
-    class BshFile;
-}
-
-namespace sg::renderer
-{
-    class MeshRenderer;
-}
+#include "ImGuiLayer.h"
+#include "LayerStack.h"
 
 namespace sg
 {
     class Window;
+    class Layer;
 
     class Game
     {
@@ -44,6 +35,12 @@ namespace sg
         ~Game();
 
         //-------------------------------------------------
+        // Getter / read-only
+        //-------------------------------------------------
+
+        [[nodiscard]] const Window& GetWindow() const noexcept;
+
+        //-------------------------------------------------
         // Run
         //-------------------------------------------------
 
@@ -53,13 +50,10 @@ namespace sg
 
     private:
         std::unique_ptr<Window> m_window;
-        std::unique_ptr<file::PaletteFile> m_paletteFile;
-        std::unique_ptr<file::BshFile> m_bshFile;
-        std::unique_ptr<renderer::MeshRenderer> m_renderer;
+        ImGuiLayer* m_imGuiLayer{ nullptr };
+        LayerStack m_layerStack;
 
-        file::Files m_files{ gameOptions.resourcePath };
-
-        bool m_quit{ false };
+        bool m_running{ true };
 
         //-------------------------------------------------
         // Init && GameLoop
@@ -67,6 +61,16 @@ namespace sg
 
         void Init();
         void GameLoop();
+
+        //-------------------------------------------------
+        // Layer
+        //-------------------------------------------------
+
+        void PushLayer(Layer* t_layer);
+        void PushOverlay(Layer* t_layer);
+
+        void OnEvent();
+        bool OnWindowClose();
 
         //-------------------------------------------------
         // Logic

@@ -46,7 +46,7 @@ namespace sg::file
         //-------------------------------------------------
 
         [[nodiscard]] std::optional<BennoZoomableBshFile> GetBshFile(renderer::Zoom::ZoomId t_zoomId, BshFile::BshFileNameId t_bshFileNameId) const;
-        [[nodiscard]] const BennoFile& GetColFile() const;
+        [[nodiscard]] const BennoFile& GetColFile() const noexcept;
 
     protected:
 

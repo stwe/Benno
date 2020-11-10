@@ -2,12 +2,9 @@
 #include <SDL2/SDL.h>
 #include "Game.h"
 #include "Window.h"
+#include "Layer.h"
 #include "Log.h"
-#include "OpenGL.h"
-#include "file/PaletteFile.h"
-#include "file/BshFile.h"
-#include "file/BshTexture.h"
-#include "renderer/MeshRenderer.h"
+#include "GameLayer.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -21,6 +18,15 @@ sg::Game::Game()
 sg::Game::~Game()
 {
     Log::SG_LOG_DEBUG("[Game::~Game()] Destruct Game.");
+}
+
+//-------------------------------------------------
+// Getter / read-only
+//-------------------------------------------------
+
+const sg::Window& sg::Game::GetWindow() const noexcept
+{
+    return *m_window;
 }
 
 //-------------------------------------------------
@@ -44,16 +50,10 @@ void sg::Game::Init()
     m_window = std::make_unique<Window>(this);
     m_window->Init();
 
-    m_paletteFile = std::make_unique<file::PaletteFile>(m_files.GetColFile().path);
-    m_paletteFile->ReadContentFromChunkData();
+    PushLayer(new GameLayer(this));
 
-    auto stadtfldFile{ m_files.GetBshFile(gameOptions.currentZoomId, file::BshFile::BshFileNameId::STADTFLD).value() };
-    m_bshFile = std::make_unique<file::BshFile>(stadtfldFile.path, m_paletteFile->GetPalette());
-    m_bshFile->ReadContentFromChunkData();
-
-    OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
-
-    m_renderer = std::make_unique<renderer::MeshRenderer>();
+    m_imGuiLayer = new ImGuiLayer(this);
+    PushOverlay(m_imGuiLayer);
 }
 
 void sg::Game::GameLoop()
@@ -69,7 +69,7 @@ void sg::Game::GameLoop()
     auto updates = 0;
 
     SDL_Event e;
-    while (!m_quit)
+    while (m_running)
     {
         // measure time
         const auto nowTime{ SDL_GetTicks() };
@@ -95,8 +95,7 @@ void sg::Game::GameLoop()
                 break;
             }
         }
-        //Input();
-
+        Input();
 
         // reset after one second
         if (SDL_GetTicks() - timer > 1000)
@@ -125,30 +124,67 @@ void sg::Game::GameLoop()
 }
 
 //-------------------------------------------------
+// Layer
+//-------------------------------------------------
+
+void sg::Game::PushLayer(Layer* t_layer)
+{
+    m_layerStack.PushLayer(t_layer);
+    t_layer->OnAttach();
+}
+
+void sg::Game::PushOverlay(Layer* t_layer)
+{
+    m_layerStack.PushOverlay(t_layer);
+    t_layer->OnAttach();
+}
+
+void sg::Game::OnEvent()
+{
+    for (auto it{ m_layerStack.rbegin() }; it != m_layerStack.rend(); ++it)
+    {
+        (*it)->OnEvent();
+    }
+}
+
+bool sg::Game::OnWindowClose()
+{
+    m_running = false;
+
+    return true;
+}
+
+//-------------------------------------------------
 // Logic
 //-------------------------------------------------
 
 void sg::Game::Input()
 {
+    for (auto* layer : m_layerStack)
+    {
+        layer->OnEvent();
+    }
 }
 
 void sg::Game::Update()
 {
+    for (auto* layer : m_layerStack)
+    {
+        layer->OnUpdate();
+    }
 }
 
 void sg::Game::Render()
 {
-    OpenGL::Clear();
-    OpenGL::EnableAlphaBlending();
+    for (auto* layer : m_layerStack)
+    {
+        layer->OnRender();
+    }
 
-    // Galgen
-    const auto& texture = m_bshFile->GetBshTexture(5372);
-
-    m_renderer->Render(
-        250, 250,
-        texture,
-        m_window->GetOrthographicProjectionMatrix()
-    );
-
-    OpenGL::DisableBlending();
+    m_imGuiLayer->Begin();
+    for (auto* layer : m_layerStack)
+    {
+        layer->OnGuiRender();
+    }
+    m_imGuiLayer->End();
 }

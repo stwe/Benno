@@ -1,0 +1,43 @@
+#pragma once
+
+#include "Layer.h"
+
+namespace sg
+{
+    class Game;
+
+    class GameLayer : public Layer
+    {
+    public:
+        //-------------------------------------------------
+        // Ctors. / Dtor.
+        //-------------------------------------------------
+
+        GameLayer() = delete;
+
+        explicit GameLayer(Game* t_parentGame);
+
+        GameLayer(const GameLayer& t_other) = delete;
+        GameLayer(GameLayer&& t_other) noexcept = delete;
+        GameLayer& operator=(const GameLayer& t_other) = delete;
+        GameLayer& operator=(GameLayer&& t_other) noexcept = delete;
+
+        ~GameLayer() = default;
+
+        //-------------------------------------------------
+        // Override
+        //-------------------------------------------------
+
+        void OnAttach() override;
+        void OnDetach() override;
+        void OnUpdate() override;
+        void OnRender() override;
+        void OnGuiRender() override;
+        void OnEvent() override;
+
+    protected:
+
+    private:
+
+    };
+}

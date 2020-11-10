@@ -30,7 +30,8 @@ namespace sg
         // Getter
         //-------------------------------------------------
 
-        [[nodiscard]] auto* GetSdlWindow() const { return m_window; }
+        [[nodiscard]] auto* GetSdlWindow() const noexcept { return m_window; }
+        [[nodiscard]] auto* GetContext() const noexcept { return m_context; }
         [[nodiscard]] glm::mat4 GetProjectionMatrix() const { return m_projectionMatrix; }
         [[nodiscard]] glm::mat4 GetOrthographicProjectionMatrix() const { return m_orthographicProjectionMatrix; }
 

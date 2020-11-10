@@ -38,7 +38,7 @@ std::optional<sg::file::BennoZoomableBshFile> sg::file::Files::GetBshFile(const 
     return std::nullopt;
 }
 
-const sg::file::BennoFile& sg::file::Files::GetColFile() const
+const sg::file::BennoFile& sg::file::Files::GetColFile() const noexcept
 {
     return m_colFile;
 }
