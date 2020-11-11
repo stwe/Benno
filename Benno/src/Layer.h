@@ -44,9 +44,10 @@ namespace sg
         virtual void OnEvent() {}
 
     protected:
-
-    private:
         Game* m_parentGame{ nullptr };
         std::string m_name;
+
+    private:
+
     };
 }

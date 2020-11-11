@@ -29,6 +29,11 @@ const sg::Window& sg::Game::GetWindow() const noexcept
     return *m_window;
 }
 
+const sg::file::Files& sg::Game::GetFiles() const noexcept
+{
+    return m_files;
+}
+
 //-------------------------------------------------
 // Run
 //-------------------------------------------------

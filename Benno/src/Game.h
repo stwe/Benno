@@ -4,6 +4,7 @@
 #include <memory>
 #include "Config.h"
 #include "LayerList.h"
+#include "file/Files.h"
 
 namespace sg
 {
@@ -43,6 +44,7 @@ namespace sg
         //-------------------------------------------------
 
         [[nodiscard]] const Window& GetWindow() const noexcept;
+        [[nodiscard]] const file::Files& GetFiles() const noexcept;
 
         //-------------------------------------------------
         // Run
@@ -57,6 +59,7 @@ namespace sg
 
         std::unique_ptr<Window> m_window;
         LayerList m_layerList;
+        file::Files m_files{ gameOptions.resourcePath };
 
         bool m_running{ true };
 

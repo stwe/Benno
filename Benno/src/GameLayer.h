@@ -1,6 +1,18 @@
 #pragma once
 
+#include <memory>
 #include "Layer.h"
+
+namespace sg::file
+{
+    class PaletteFile;
+    class BshFile;
+}
+
+namespace sg::renderer
+{
+    class MeshRenderer;
+}
 
 namespace sg
 {
@@ -39,6 +51,10 @@ namespace sg
     protected:
 
     private:
+        std::unique_ptr<file::PaletteFile> m_paletteFile;
+        std::unique_ptr<file::BshFile> m_bshFile;
+        std::unique_ptr<renderer::MeshRenderer> m_renderer;
 
+        int m_bshIndex{ 5372 };
     };
 }
