@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include "Config.h"
 #include "LayerList.h"
@@ -9,9 +10,13 @@ namespace sg
     class Window;
     class Layer;
 
+    using namespace std::literals::chrono_literals;
+
     class Game
     {
     public:
+        using Clock = std::chrono::high_resolution_clock;
+
         //-------------------------------------------------
         // Public member
         //-------------------------------------------------
@@ -48,6 +53,8 @@ namespace sg
     protected:
 
     private:
+        static constexpr std::chrono::nanoseconds TIMESTEP{ 16ms };
+
         std::unique_ptr<Window> m_window;
         LayerList m_layerList;
 

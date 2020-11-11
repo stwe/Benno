@@ -53,35 +53,32 @@ void sg::Game::Init()
     AddLayer(new GameLayer(this, "GameScreen"));
 }
 
+// todo vsync option
 void sg::Game::GameLoop()
 {
-    const auto frametime{ static_cast<uint32_t>(1000 / windowOptions.fps) };
+    auto accumulator{ 0ns };
+    auto timeStart{ Clock::now() };
+    auto resetTime{ timeStart };
 
-    auto lastTime{ SDL_GetTicks() };
-    auto timer{ lastTime };
-
-    auto deltaTime = 0;
-
-    auto frames = 0;
-    auto updates = 0;
+    auto frames{ 0 };
+    auto updates{ 0 };
 
     SDL_Event e;
     while (m_running)
     {
-        // measure time
-        const auto nowTime{ SDL_GetTicks() };
-        deltaTime += (nowTime - lastTime) / frametime;
-        lastTime = nowTime;
+        const auto currentTime{ Clock::now() };
+        auto frameTime{ currentTime - timeStart };
+        timeStart = currentTime;
+        accumulator += std::chrono::duration_cast<std::chrono::nanoseconds>(frameTime);
 
-        // only update at 60 frames per second (default)
-        while (deltaTime >= 1000)
+        while (accumulator > TIMESTEP)
         {
             Update();
+
+            accumulator -= TIMESTEP;
             updates++;
-            deltaTime--;
         }
 
-        // render at maximum possible frames
         Render();
         frames++;
 
@@ -94,10 +91,9 @@ void sg::Game::GameLoop()
         }
         Input();
 
-        // reset after one second
-        if (SDL_GetTicks() - timer > 1000)
+        if (std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - resetTime) > 1s)
         {
-            timer += 1000;
+            resetTime = currentTime;
 
             if (windowOptions.printFrameRate)
             {
@@ -132,6 +128,7 @@ void sg::Game::AddLayer(Layer* t_layer)
 
 void sg::Game::OnEvent()
 {
+    // todo
     for (auto it{ m_layerList.rbegin() }; it != m_layerList.rend(); ++it)
     {
         (*it)->OnEvent();
