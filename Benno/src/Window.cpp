@@ -1,5 +1,7 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+#include "vendor/imgui/imgui_impl_sdl.h"
+#include "vendor/imgui/imgui_impl_opengl3.h"
 #include "Window.h"
 #include "Game.h"
 #include "OpenGL.h"
@@ -22,6 +24,10 @@ sg::Window::Window(Game* const t_parentGame)
 sg::Window::~Window()
 {
     Log::SG_LOG_DEBUG("[Window::~Window()] Destruct Window.");
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     if (m_context)
     {
@@ -148,6 +154,19 @@ void sg::Window::Init()
     // set/update the projection matrix
     UpdateProjectionMatrix();
     UpdateOrthographicProjectionMatrix();
+
+    // init ImGui
+    Log::SG_LOG_DEBUG("[Window::Init()] Initialize ImGui.");
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    auto& io{ ImGui::GetIO() };
+    (void)io;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL2_InitForOpenGL(m_window, m_context);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
 //-------------------------------------------------
@@ -182,4 +201,21 @@ void sg::Window::UpdateOrthographicProjectionMatrix()
         1.0f,
         -1.0f
     );
+}
+
+//-------------------------------------------------
+// ImGui
+//-------------------------------------------------
+
+void sg::Window::ImGuiBegin() const
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame(m_window);
+    ImGui::NewFrame();
+}
+
+void sg::Window::ImGuiEnd()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

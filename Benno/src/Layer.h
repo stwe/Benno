@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace sg
 {
     class Game;
@@ -13,27 +15,29 @@ namespace sg
 
         Layer() = delete;
 
-        explicit Layer(Game* t_parentGame);
+        Layer(Game* t_parentGame, const std::string& t_name);
 
         Layer(const Layer& t_other) = delete;
         Layer(Layer&& t_other) noexcept = delete;
         Layer& operator=(const Layer& t_other) = delete;
         Layer& operator=(Layer&& t_other) noexcept = delete;
 
-        virtual ~Layer() = default;
+        virtual ~Layer();
 
         //-------------------------------------------------
         // Getter
         //-------------------------------------------------
 
         [[nodiscard]] Game* GetParentGame() const noexcept;
+        [[nodiscard]] const std::string& GetName() const noexcept;
 
         //-------------------------------------------------
         // Interface
         //-------------------------------------------------
 
-        virtual void OnAttach() {}
-        virtual void OnDetach() {}
+        virtual void OnCreate() {}
+        virtual void OnDestruct() {}
+
         virtual void OnUpdate() {}
         virtual void OnRender() {}
         virtual void OnGuiRender() {}
@@ -43,5 +47,6 @@ namespace sg
 
     private:
         Game* m_parentGame{ nullptr };
+        std::string m_name;
     };
 }

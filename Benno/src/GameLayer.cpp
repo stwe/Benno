@@ -7,8 +7,8 @@
 // Ctors. / Dtor.
 //-------------------------------------------------
 
-sg::GameLayer::GameLayer(Game* t_parentGame)
-    : Layer(t_parentGame)
+sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
+    : Layer(t_parentGame, t_name)
 {
 }
 
@@ -16,12 +16,12 @@ sg::GameLayer::GameLayer(Game* t_parentGame)
 // Override
 //-------------------------------------------------
 
-void sg::GameLayer::OnAttach()
+void sg::GameLayer::OnCreate()
 {
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }
 
-void sg::GameLayer::OnDetach()
+void sg::GameLayer::OnDestruct()
 {
 }
 
@@ -41,7 +41,7 @@ void sg::GameLayer::OnRender()
 
 void sg::GameLayer::OnGuiRender()
 {
-    ImGui::Begin("Settings");
+    ImGui::Begin("Debug");
 
     ImGui::End();
 }

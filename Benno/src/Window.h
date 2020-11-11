@@ -49,6 +49,13 @@ namespace sg
         void UpdateProjectionMatrix();
         void UpdateOrthographicProjectionMatrix();
 
+        //-------------------------------------------------
+        // ImGui
+        //-------------------------------------------------
+
+        void ImGuiBegin() const;
+        static void ImGuiEnd();
+
     protected:
 
     private:

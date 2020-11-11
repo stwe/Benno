@@ -15,7 +15,7 @@ namespace sg
 
         GameLayer() = delete;
 
-        explicit GameLayer(Game* t_parentGame);
+        GameLayer(Game* t_parentGame, const std::string& t_name);
 
         GameLayer(const GameLayer& t_other) = delete;
         GameLayer(GameLayer&& t_other) noexcept = delete;
@@ -28,8 +28,9 @@ namespace sg
         // Override
         //-------------------------------------------------
 
-        void OnAttach() override;
-        void OnDetach() override;
+        void OnCreate() override;
+        void OnDestruct() override;
+
         void OnUpdate() override;
         void OnRender() override;
         void OnGuiRender() override;

@@ -2,8 +2,7 @@
 
 #include <memory>
 #include "Config.h"
-#include "ImGuiLayer.h"
-#include "LayerStack.h"
+#include "LayerList.h"
 
 namespace sg
 {
@@ -50,8 +49,7 @@ namespace sg
 
     private:
         std::unique_ptr<Window> m_window;
-        ImGuiLayer* m_imGuiLayer{ nullptr };
-        LayerStack m_layerStack;
+        LayerList m_layerList;
 
         bool m_running{ true };
 
@@ -66,8 +64,7 @@ namespace sg
         // Layer
         //-------------------------------------------------
 
-        void PushLayer(Layer* t_layer);
-        void PushOverlay(Layer* t_layer);
+        void AddLayer(Layer* t_layer);
 
         void OnEvent();
         bool OnWindowClose();

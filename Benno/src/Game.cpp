@@ -50,10 +50,7 @@ void sg::Game::Init()
     m_window = std::make_unique<Window>(this);
     m_window->Init();
 
-    PushLayer(new GameLayer(this));
-
-    m_imGuiLayer = new ImGuiLayer(this);
-    PushOverlay(m_imGuiLayer);
+    AddLayer(new GameLayer(this, "GameScreen"));
 }
 
 void sg::Game::GameLoop()
@@ -127,21 +124,15 @@ void sg::Game::GameLoop()
 // Layer
 //-------------------------------------------------
 
-void sg::Game::PushLayer(Layer* t_layer)
+void sg::Game::AddLayer(Layer* t_layer)
 {
-    m_layerStack.PushLayer(t_layer);
-    t_layer->OnAttach();
-}
-
-void sg::Game::PushOverlay(Layer* t_layer)
-{
-    m_layerStack.PushOverlay(t_layer);
-    t_layer->OnAttach();
+    m_layerList.Add(t_layer);
+    t_layer->OnCreate();
 }
 
 void sg::Game::OnEvent()
 {
-    for (auto it{ m_layerStack.rbegin() }; it != m_layerStack.rend(); ++it)
+    for (auto it{ m_layerList.rbegin() }; it != m_layerList.rend(); ++it)
     {
         (*it)->OnEvent();
     }
@@ -160,7 +151,7 @@ bool sg::Game::OnWindowClose()
 
 void sg::Game::Input()
 {
-    for (auto* layer : m_layerStack)
+    for (auto* layer : m_layerList)
     {
         layer->OnEvent();
     }
@@ -168,7 +159,7 @@ void sg::Game::Input()
 
 void sg::Game::Update()
 {
-    for (auto* layer : m_layerStack)
+    for (auto* layer : m_layerList)
     {
         layer->OnUpdate();
     }
@@ -176,15 +167,15 @@ void sg::Game::Update()
 
 void sg::Game::Render()
 {
-    for (auto* layer : m_layerStack)
+    for (auto* layer : m_layerList)
     {
         layer->OnRender();
     }
 
-    m_imGuiLayer->Begin();
-    for (auto* layer : m_layerStack)
+    m_window->ImGuiBegin();
+    for (auto* layer : m_layerList)
     {
         layer->OnGuiRender();
     }
-    m_imGuiLayer->End();
+    m_window->ImGuiEnd();
 }

@@ -6,30 +6,28 @@ namespace sg
 {
     class Layer;
 
-    class LayerStack
+    class LayerList
     {
     public:
         //-------------------------------------------------
         // Ctors. / Dtor.
         //-------------------------------------------------
 
-        LayerStack();
+        LayerList();
 
-        LayerStack(const LayerStack& t_other) = delete;
-        LayerStack(LayerStack&& t_other) noexcept = delete;
-        LayerStack& operator=(const LayerStack& t_other) = delete;
-        LayerStack& operator=(LayerStack&& t_other) noexcept = delete;
+        LayerList(const LayerList& t_other) = delete;
+        LayerList(LayerList&& t_other) noexcept = delete;
+        LayerList& operator=(const LayerList& t_other) = delete;
+        LayerList& operator=(LayerList&& t_other) noexcept = delete;
 
-        ~LayerStack();
+        ~LayerList();
 
         //-------------------------------------------------
-        // Push / Pop
+        // Add / Remove
         //-------------------------------------------------
 
-        void PushLayer(Layer* t_layer);
-        void PushOverlay(Layer* t_layer);
-        void PopLayer(Layer* t_layer);
-        void PopOverlay(Layer* t_layer);
+        void Add(Layer* t_layer);
+        void Remove(Layer* t_layer);
 
         //-------------------------------------------------
         // Iterator
@@ -49,6 +47,5 @@ namespace sg
 
     private:
         std::vector<Layer*> m_layers;
-        uint32_t m_layerInsertIndex{ 0 };
     };
 }
