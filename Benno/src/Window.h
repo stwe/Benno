@@ -45,7 +45,7 @@ namespace sg
         // Update
         //-------------------------------------------------
 
-        void Update() const;
+        void OnUpdate() const;
         void UpdateProjectionMatrix();
         void UpdateOrthographicProjectionMatrix();
 

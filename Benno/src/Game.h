@@ -6,6 +6,8 @@
 #include "LayerList.h"
 #include "file/Files.h"
 
+union SDL_Event;
+
 namespace sg
 {
     class Window;
@@ -76,15 +78,13 @@ namespace sg
 
         void AddLayer(Layer* t_layer);
 
-        void OnEvent();
-        bool OnWindowClose();
-
         //-------------------------------------------------
         // Logic
         //-------------------------------------------------
 
-        void Input();
-        void Update();
-        void Render();
+        void OnUpdate();
+        void OnRender();
+        void OnSdlEvent(const SDL_Event& t_event);
+        void OnInput();
     };
 }

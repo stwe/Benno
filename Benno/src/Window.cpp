@@ -173,7 +173,7 @@ void sg::Window::Init()
 // Update
 //-------------------------------------------------
 
-void sg::Window::Update() const
+void sg::Window::OnUpdate() const
 {
     SDL_GL_SwapWindow(m_window);
 }

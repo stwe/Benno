@@ -2,6 +2,8 @@
 
 #include <string>
 
+union SDL_Event;
+
 namespace sg
 {
     class Game;
@@ -41,7 +43,8 @@ namespace sg
         virtual void OnUpdate() {}
         virtual void OnRender() {}
         virtual void OnGuiRender() {}
-        virtual void OnEvent() {}
+        virtual void OnSdlEvent(const SDL_Event& t_event) {}
+        virtual void OnInput() {}
 
     protected:
         Game* m_parentGame{ nullptr };

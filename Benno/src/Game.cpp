@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include "Game.h"
 #include "Window.h"
+#include "Input.h"
 #include "Layer.h"
 #include "Log.h"
 #include "GameLayer.h"
@@ -68,7 +69,6 @@ void sg::Game::GameLoop()
     auto frames{ 0 };
     auto updates{ 0 };
 
-    SDL_Event e;
     while (m_running)
     {
         const auto currentTime{ Clock::now() };
@@ -76,26 +76,29 @@ void sg::Game::GameLoop()
         timeStart = currentTime;
         accumulator += std::chrono::duration_cast<std::chrono::nanoseconds>(frameTime);
 
+        // Update
         while (accumulator > TIMESTEP)
         {
-            Update();
+            Input::GetInstance().OnUpdate();
+            OnUpdate();
 
             accumulator -= TIMESTEP;
             updates++;
         }
 
-        Render();
+        // Render
+        OnRender();
         frames++;
 
-        if (SDL_PollEvent(&e))
+        // Events / Input
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
         {
-            if (e.type == SDL_QUIT)
-            {
-                break;
-            }
+            OnSdlEvent(event);
         }
-        Input();
+        OnInput();
 
+        // Info
         if (std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - resetTime) > 1s)
         {
             resetTime = currentTime;
@@ -117,7 +120,7 @@ void sg::Game::GameLoop()
             frames = 0;
         }
 
-        m_window->Update();
+        m_window->OnUpdate();
     }
 }
 
@@ -131,35 +134,11 @@ void sg::Game::AddLayer(Layer* t_layer)
     t_layer->OnCreate();
 }
 
-void sg::Game::OnEvent()
-{
-    // todo
-    for (auto it{ m_layerList.rbegin() }; it != m_layerList.rend(); ++it)
-    {
-        (*it)->OnEvent();
-    }
-}
-
-bool sg::Game::OnWindowClose()
-{
-    m_running = false;
-
-    return true;
-}
-
 //-------------------------------------------------
 // Logic
 //-------------------------------------------------
 
-void sg::Game::Input()
-{
-    for (auto* layer : m_layerList)
-    {
-        layer->OnEvent();
-    }
-}
-
-void sg::Game::Update()
+void sg::Game::OnUpdate()
 {
     for (auto* layer : m_layerList)
     {
@@ -167,7 +146,7 @@ void sg::Game::Update()
     }
 }
 
-void sg::Game::Render()
+void sg::Game::OnRender()
 {
     for (auto* layer : m_layerList)
     {
@@ -180,4 +159,35 @@ void sg::Game::Render()
         layer->OnGuiRender();
     }
     m_window->ImGuiEnd();
+}
+
+void sg::Game::OnSdlEvent(const SDL_Event& t_event)
+{
+    switch (t_event.type)
+    {
+        case SDL_QUIT:
+            m_running = false;
+            break;
+        case SDL_KEYDOWN:
+            Input::GetInstance().KeyPress(t_event.key.keysym.sym);
+            break;
+        case SDL_KEYUP:
+            Input::GetInstance().KeyRelease(t_event.key.keysym.sym);
+            break;
+        default:
+            break;
+    }
+
+    for (auto* layer : m_layerList)
+    {
+        layer->OnSdlEvent(t_event);
+    }
+}
+
+void sg::Game::OnInput()
+{
+    if (Input::GetInstance().IsKeyPressed(SDLK_ESCAPE))
+    {
+        m_running = false;
+    }
 }

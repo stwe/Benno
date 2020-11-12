@@ -45,7 +45,6 @@ void sg::GameLayer::OnRender()
     OpenGL::Clear();
     OpenGL::EnableAlphaBlending();
 
-    // Galgen
     const auto& texture{ m_bshFile->GetBshTexture(m_bshIndex) };
     m_renderer->Render(
         250, 250,
@@ -65,6 +64,10 @@ void sg::GameLayer::OnGuiRender()
     ImGui::End();
 }
 
-void sg::GameLayer::OnEvent()
+void sg::GameLayer::OnSdlEvent(const SDL_Event& t_event)
+{
+}
+
+void sg::GameLayer::OnInput()
 {
 }

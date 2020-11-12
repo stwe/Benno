@@ -46,7 +46,8 @@ namespace sg
         void OnUpdate() override;
         void OnRender() override;
         void OnGuiRender() override;
-        void OnEvent() override;
+        void OnSdlEvent(const SDL_Event& t_event) override;
+        void OnInput() override;
 
     protected:
 
