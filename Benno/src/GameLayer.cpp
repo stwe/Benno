@@ -57,7 +57,7 @@ void sg::GameLayer::OnRender()
 
 void sg::GameLayer::OnGuiRender()
 {
-    ImGui::Begin("Debug");
+    ImGui::Begin("GameLayer Debug");
 
     ImGui::SliderInt("Bsh Tile Graphic", &m_bshIndex, 110, 5963);
 

@@ -6,6 +6,7 @@
 #include "Layer.h"
 #include "Log.h"
 #include "GameLayer.h"
+#include "vendor/imgui/imgui.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -154,10 +155,21 @@ void sg::Game::OnRender()
     }
 
     m_window->ImGuiBegin();
+
+    ImGui::Begin("Game Debug");
+
+    ImGui::Text("Press the Escape key to exit.");
+    ImGui::Spacing();
+    ImGui::Text("Mouse x: %f", Input::GetInstance().GetMousePosition().x);
+    ImGui::Text("Mouse y: %f", Input::GetInstance().GetMousePosition().y);
+
+    ImGui::End();
+
     for (auto* layer : m_layerList)
     {
         layer->OnGuiRender();
     }
+
     m_window->ImGuiEnd();
 }
 
@@ -168,11 +180,20 @@ void sg::Game::OnSdlEvent(const SDL_Event& t_event)
         case SDL_QUIT:
             m_running = false;
             break;
+        case SDL_MOUSEMOTION:
+            Input::GetInstance().SetMousePosition(static_cast<float>(t_event.motion.x), static_cast<float>(t_event.motion.y));
+            break;
         case SDL_KEYDOWN:
             Input::GetInstance().KeyPress(t_event.key.keysym.sym);
             break;
         case SDL_KEYUP:
             Input::GetInstance().KeyRelease(t_event.key.keysym.sym);
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            Input::GetInstance().KeyPress(t_event.button.button);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            Input::GetInstance().KeyRelease(t_event.button.button);
             break;
         default:
             break;
@@ -189,5 +210,10 @@ void sg::Game::OnInput()
     if (Input::GetInstance().IsKeyPressed(SDLK_ESCAPE))
     {
         m_running = false;
+    }
+
+    if (Input::GetInstance().IsKeyDown(SDL_BUTTON_RIGHT))
+    {
+        Log::SG_LOG_DEBUG("Right mouse button pressed.");
     }
 }

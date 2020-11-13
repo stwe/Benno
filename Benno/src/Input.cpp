@@ -1,6 +1,25 @@
 #include "Input.h"
 
 //-------------------------------------------------
+// Getter / read-only
+//-------------------------------------------------
+
+glm::vec2 sg::Input::GetMousePosition() const noexcept
+{
+    return m_mousePosition;
+}
+
+//-------------------------------------------------
+// Setter
+//-------------------------------------------------
+
+void sg::Input::SetMousePosition(const float t_x, const float t_y) noexcept
+{
+    m_mousePosition.x = t_x;
+    m_mousePosition.y = t_y;
+}
+
+//-------------------------------------------------
 // Singleton
 //-------------------------------------------------
 

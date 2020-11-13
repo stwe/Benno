@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <glm/vec2.hpp>
 
 namespace sg
 {
@@ -15,6 +16,18 @@ namespace sg
         Input(Input&& t_other) noexcept = delete;
         Input& operator=(const Input& t_other) = delete;
         Input& operator=(Input&& t_other) noexcept = delete;
+
+        //-------------------------------------------------
+        // Getter / read-only
+        //-------------------------------------------------
+
+        [[nodiscard]] glm::vec2 GetMousePosition() const noexcept;
+
+        //-------------------------------------------------
+        // Setter
+        //-------------------------------------------------
+
+        void SetMousePosition(float t_x, float t_y) noexcept;
 
         //-------------------------------------------------
         // Singleton
@@ -47,6 +60,8 @@ namespace sg
     private:
         std::unordered_map<int32_t, bool> m_keyMap;
         std::unordered_map<int32_t, bool> m_previousKeyMap;
+
+        glm::vec2 m_mousePosition{ 0.0f, 0.0f };
 
         //-------------------------------------------------
         // Ctors. / Dtor.
