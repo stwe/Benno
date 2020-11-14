@@ -80,3 +80,6 @@ premake5 gmake
 make -j8
 ```
 
+## License
+
+Benno is licensed under the GPL-2.0 License, see [LICENSE](https://github.com/stwe/Benno/blob/master/LICENSE) for more information.
