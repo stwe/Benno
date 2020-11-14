@@ -1,8 +1,5 @@
 #include <fstream>
-#include <iostream>
 #include "Chunk.h"
-#include "SgAssert.h"
-#include "SgException.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -13,21 +10,24 @@ sg::chunk::Chunk::Chunk(std::ifstream& t_input)
     t_input.read(m_id.data(), ID_SIZE_IN_BYTES);
     t_input.read(reinterpret_cast<char*>(&m_length), sizeof(m_length));
 
-    SG_ASSERT(m_length > 0, "[Chunk::Chunk()] Invalid Chunk length.");
-    SG_ASSERT(t_input.tellg() == CHUNK_SIZE_IN_BYTES, "[Chunk::Chunk()] Invalid file position.");
+    if (m_length > 0)
+    {
+        m_data.resize(m_length);
+        t_input.read(reinterpret_cast<char*>(m_data.data()), m_length);
+    }
+}
 
-    m_data.insert(m_data.begin(), std::istreambuf_iterator<char>(t_input), {});
-
-    SG_ASSERT(t_input.tellg() == m_length + CHUNK_SIZE_IN_BYTES, "[Chunk::Chunk()] Invalid file position.");
+sg::chunk::Chunk::~Chunk()
+{
 }
 
 //-------------------------------------------------
 // Getter / read-only
 //-------------------------------------------------
 
-const std::string& sg::chunk::Chunk::GetId() const noexcept
+const char* sg::chunk::Chunk::GetId() const noexcept
 {
-    return m_id;
+    return m_id.c_str();
 }
 
 uint32_t sg::chunk::Chunk::GetLength() const noexcept

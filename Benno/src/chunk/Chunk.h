@@ -21,13 +21,13 @@ namespace sg::chunk
         Chunk& operator=(const Chunk& t_other) = delete;
         Chunk& operator=(Chunk&& t_other) noexcept = delete;
 
-        ~Chunk() = default;
+        ~Chunk();
 
         //-------------------------------------------------
         // Getter / read-only
         //-------------------------------------------------
 
-        [[nodiscard]] const std::string& GetId() const noexcept;
+        [[nodiscard]] const char* GetId() const noexcept;
         [[nodiscard]] uint32_t GetLength() const noexcept;
         [[nodiscard]] const std::vector<uint8_t>& GetData() const noexcept;
 

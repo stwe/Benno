@@ -12,6 +12,7 @@ namespace sg::file
 {
     class PaletteFile;
     class BshFile;
+    class GamFile;
 }
 
 namespace sg::renderer
@@ -57,9 +58,10 @@ namespace sg
     protected:
 
     private:
+        std::unique_ptr<data::HousesJsonFile> m_housesJsonFile;
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::unique_ptr<file::BshFile> m_bshFile;
-        std::unique_ptr<data::HousesJsonFile> m_housesJsonFile;
+        std::unique_ptr<file::GamFile> m_gamFile;
         std::unique_ptr<renderer::MeshRenderer> m_renderer;
 
         int m_bshIndex{ 5372 };

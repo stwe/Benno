@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "OpenGL.h"
 #include "SgException.h"
+#include "chunk/Chunk.h"
 #include "gl/Texture.h"
 
 //-------------------------------------------------
@@ -20,7 +21,7 @@ sg::file::BshFile::BshFile(const std::string& t_filePath, const std::vector<Pale
         throw SG_EXCEPTION("[BshFile::BshFile()] Invalid number of Chunks.");
     }
 
-    if (ChunkIndexHasId(0, CHUNK_ID))
+    if (!ChunkIndexHasId(0, CHUNK_ID))
     {
         throw SG_EXCEPTION("[BshFile::BshFile()] Invalid Chunk Id.");
     }

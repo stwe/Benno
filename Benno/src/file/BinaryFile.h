@@ -3,7 +3,11 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "chunk/Chunk.h"
+
+namespace sg::chunk
+{
+    class Chunk;
+}
 
 namespace sg::file
 {
@@ -32,6 +36,7 @@ namespace sg::file
         [[nodiscard]] size_t GetNumberOfChunks() const noexcept;
         [[nodiscard]] bool ChunkIndexHasId(int t_chunkIndex, const std::string& t_chunkId) const;
         [[nodiscard]] const chunk::Chunk& GetChunk(int t_chunkIndex) const;
+        [[nodiscard]] const std::vector<std::unique_ptr<chunk::Chunk>>& GetChunks() const noexcept;
 
         //-------------------------------------------------
         // Read Chunks

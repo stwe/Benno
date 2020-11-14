@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "SgAssert.h"
 #include "SgException.h"
+#include "chunk/Chunk.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -17,7 +18,7 @@ sg::file::PaletteFile::PaletteFile(const std::string& t_filePath)
         throw SG_EXCEPTION("[PaletteFile::PaletteFile()] Invalid number of Chunks.");
     }
 
-    if (ChunkIndexHasId(0, CHUNK_ID))
+    if (!ChunkIndexHasId(0, CHUNK_ID))
     {
         throw SG_EXCEPTION("[PaletteFile::PaletteFile()] Invalid Chunk Id.");
     }

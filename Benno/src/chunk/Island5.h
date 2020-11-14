@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 #include "Island.h"
 
 namespace sg::chunk
@@ -29,7 +30,7 @@ namespace sg::chunk
         uint16_t fileNumber;
         IslandSize size;
         IslandClimate climate;
-        IslandModified modifiedFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
+        uint8_t modifiedFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
         uint8_t duerrproz;
         uint8_t rotier;
         uint32_t seeplayerflags;
@@ -41,9 +42,22 @@ namespace sg::chunk
     {
     public:
 
+        Island5() = delete;
+
+        explicit Island5(const std::vector<uint8_t>& t_chunkData);
+
+        Island5(const Island5& t_other) = delete;
+        Island5(Island5&& t_other) noexcept = delete;
+        Island5& operator=(const Island5& t_other) = delete;
+        Island5& operator=(Island5&& t_other) noexcept = delete;
+
+        ~Island5();
+
+        void ReadIsland5Data(const std::vector<uint8_t>& t_chunkData);
+
     protected:
 
     private:
-
+        Island5Data m_island5Data;
     };
 }

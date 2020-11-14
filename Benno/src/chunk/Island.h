@@ -17,41 +17,35 @@ namespace sg::chunk
 
     enum class Fertility : uint32_t
     {
-        Random = 0x0000,
-        None = 0x1181,
-        TobaccoOnly = 0x1183,
-        WineOnly = 0x11A1,
-        SugarOnly = 0x1189,
-        CocoaOnly = 0x11C1,
-        WoolOnly = 0x1191,
-        SpicesOnly = 0x1185,
-        TobaccoAndSpices = 0x1187,
-        TobaccoAndSugar = 0x118B,
-        SpicesAndSugar = 0x118D,
-        WoolAndWine = 0x11B1,
-        WoolAndCocoa = 0x11D1,
-        WineAndCocoa = 0x11E1
-    };
-
-    enum class IslandModified : uint8_t
-    {
-        False = 0,
-        True = 1
+        RANDOM = 0x0000,
+        NONE = 0x1181,
+        TOBACCO_ONLY = 0x1183,
+        WINE_ONLY = 0x11A1,
+        SUGAR_ONLY = 0x1189,
+        COCOA_ONLY = 0x11C1,
+        WOOL_ONLY = 0x1191,
+        SPICES_ONLY = 0x1185,
+        TOBACCO_AND_SPICES = 0x1187,
+        TOBACCO_AND_SUGAR = 0x118B,
+        SPICES_AND_SUGAR = 0x118D,
+        WOOL_AND_WINE = 0x11B1,
+        WOOL_AND_COCOA = 0x11D1,
+        WINE_AND_COCOA = 0x11E1
     };
 
     enum class IslandSize : uint16_t
     {
-        Little = 0,
-        Middle = 1,
-        Median = 2,
-        Big = 3,
-        Large = 4
+        LITTLE = 0,
+        MIDDLE = 1,
+        MEDIAN = 2,
+        BIG = 3,
+        LARGE = 4
     };
 
     enum class IslandClimate : uint8_t
     {
-        North = 0,
-        South = 1,
-        Any = 2
+        NORTH = 0,
+        SOUTH = 1,
+        ANY = 2
     };
 }

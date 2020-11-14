@@ -3,8 +3,11 @@
 #include "OpenGL.h"
 #include "Window.h"
 #include "vendor/imgui/imgui.h"
-#include "renderer/MeshRenderer.h"
 #include "data/HousesJsonFile.h"
+#include "file/PaletteFile.h"
+#include "file/BshFile.h"
+#include "file/GamFile.h"
+#include "renderer/MeshRenderer.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -29,6 +32,9 @@ void sg::GameLayer::OnCreate()
     auto stadtfld{ m_parentGame->GetFiles().GetBshFile(m_parentGame->gameOptions.currentZoomId, file::BshFile::BshFileNameId::STADTFLD).value() };
     m_bshFile = std::make_unique<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
+
+    m_gamFile = std::make_unique<file::GamFile>("res/savegame/game01.gam");
+    m_gamFile->ReadContentFromChunkData();
 
     m_renderer = std::make_unique<renderer::MeshRenderer>();
 
