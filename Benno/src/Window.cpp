@@ -55,6 +55,14 @@ void sg::Window::Init()
         throw SG_EXCEPTION("[Window::Init()] Unable to initialize SDL. Error: " + std::string(reinterpret_cast<const char*>(SDL_GetError())));
     }
 
+    // framebuffer setup
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
     // OpenGL version
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, m_parentGame->windowOptions.glMajor);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, m_parentGame->windowOptions.glMinor);
@@ -113,6 +121,20 @@ void sg::Window::Init()
     {
         Log::SG_LOG_FATAL("[Window::Init()] Context could not be created. Error: {}", SDL_GetError());
         throw SG_EXCEPTION("[Window::Init()] Context could not be created.");
+    }
+
+    // vsync
+    if (m_parentGame->windowOptions.vSync)
+    {
+        Log::SG_LOG_DEBUG("[Window::Init()] Try to enable vsync.");
+
+        if (SDL_GL_SetSwapInterval(-1) < 0)
+        {
+            if (SDL_GL_SetSwapInterval(1) < 0)
+            {
+                Log::SG_LOG_WARN("[Window::Init()] WARNING: Setting the swap interval is not supported.");
+            }
+        }
     }
 
     // init Glew

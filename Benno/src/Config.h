@@ -18,6 +18,7 @@ namespace sg
         bool printFrameRate{ true };
         int glMajor{ 3 };
         int glMinor{ 3 };
+        bool vSync{ false };
     };
 
     //-------------------------------------------------
