@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "vendor/imgui/imgui.h"
 #include "renderer/MeshRenderer.h"
+#include "data/HousesJsonFile.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -20,6 +21,8 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 
 void sg::GameLayer::OnCreate()
 {
+    m_housesJsonFile = std::make_unique<data::HousesJsonFile>("res/data/houses.json");
+
     m_paletteFile = std::make_unique<file::PaletteFile>(m_parentGame->GetFiles().GetColFile().path);
     m_paletteFile->ReadContentFromChunkData();
 

@@ -4,6 +4,7 @@ glew/2.1.0@bincrafters/stable
 glm/0.9.9.8
 spdlog/1.8.0
 imgui/1.79
+nlohmann_json/3.9.1
 
 [generators]
 premake

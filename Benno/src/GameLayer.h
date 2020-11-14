@@ -3,6 +3,11 @@
 #include <memory>
 #include "Layer.h"
 
+namespace sg::data
+{
+    class HousesJsonFile;
+}
+
 namespace sg::file
 {
     class PaletteFile;
@@ -54,6 +59,7 @@ namespace sg
     private:
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::unique_ptr<file::BshFile> m_bshFile;
+        std::unique_ptr<data::HousesJsonFile> m_housesJsonFile;
         std::unique_ptr<renderer::MeshRenderer> m_renderer;
 
         int m_bshIndex{ 5372 };

@@ -60,7 +60,6 @@ void sg::Game::Init()
     AddLayer(new GameLayer(this, "GameScreen"));
 }
 
-// todo vsync option
 void sg::Game::GameLoop()
 {
     auto accumulator{ 0ns };
