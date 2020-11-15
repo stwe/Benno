@@ -1,11 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 #include "Island.h"
 
 namespace sg::chunk
 {
+    class IslandHouse;
+
     struct Island5Data
     {
         uint8_t islandNumber;
@@ -18,19 +21,19 @@ namespace sg::chunk
         uint16_t posy;
         uint16_t hirschreviercnt;
         uint16_t speedcnt;
-        uint8_t stadtplayernr[11];
+        uint8_t stadtplayernr[11]; // todo
         uint8_t vulkancnt;
         uint8_t schatzflg;
         uint8_t rohstanz;
         uint8_t eisencnt;
         uint8_t playerflags;
-        OreMountainData eisenberg[4];
-        OreMountainData vulkanberg[4];
+        OreMountainData eisenberg[4]; // todo
+        OreMountainData vulkanberg[4]; // todo
         Fertility fertility;
         uint16_t fileNumber;
         IslandSize size;
         IslandClimate climate;
-        uint8_t modifiedFlag; // flag that indicates if the island is `original` (empty INSELHAUS chunk) or `modified` (filled INSELHAUS chunk).
+        uint8_t modifiedFlag;
         uint8_t duerrproz;
         uint8_t rotier;
         uint32_t seeplayerflags;
@@ -41,6 +44,9 @@ namespace sg::chunk
     class Island5
     {
     public:
+        //-------------------------------------------------
+        // Ctors. / Dtor.
+        //-------------------------------------------------
 
         Island5() = delete;
 
@@ -53,11 +59,28 @@ namespace sg::chunk
 
         ~Island5();
 
-        void ReadIsland5Data(const std::vector<uint8_t>& t_chunkData);
+        //-------------------------------------------------
+        // Getter / read-only
+        //-------------------------------------------------
+
+        [[nodiscard]] const Island5Data& GetIsland5Data() const noexcept;
+
+        //-------------------------------------------------
+        // Setter
+        //-------------------------------------------------
+
+        void AddIslandHouse(std::unique_ptr<IslandHouse> t_islandHouse);
 
     protected:
 
     private:
         Island5Data m_island5Data;
+        std::vector<std::unique_ptr<IslandHouse>> m_islandHouses;
+
+        //-------------------------------------------------
+        // Read data
+        //-------------------------------------------------
+
+        void ReadIsland5Data(const std::vector<uint8_t>& t_chunkData);
     };
 }

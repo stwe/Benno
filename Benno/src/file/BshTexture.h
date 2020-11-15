@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "file/PaletteFile.h"
+#include "PaletteFile.h"
 
 namespace sg::file
 {

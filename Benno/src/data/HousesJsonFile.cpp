@@ -1,6 +1,5 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include <iostream>
 #include "HousesJsonFile.h"
 #include "Log.h"
 #include "SgException.h"

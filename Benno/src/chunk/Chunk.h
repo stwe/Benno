@@ -35,8 +35,6 @@ namespace sg::chunk
 
     private:
         static constexpr auto ID_SIZE_IN_BYTES{ 16 };
-        static constexpr auto DATA_LENGTH_SIZE_IN_BYTES{ 4 };
-        static constexpr auto CHUNK_SIZE_IN_BYTES{ ID_SIZE_IN_BYTES + DATA_LENGTH_SIZE_IN_BYTES };
 
         std::string m_id;
         uint32_t m_length{ 0u };

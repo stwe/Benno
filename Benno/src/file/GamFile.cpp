@@ -1,6 +1,7 @@
 #include "GamFile.h"
 #include "Log.h"
 #include "chunk/Island5.h"
+#include "chunk/IslandHouse.h"
 #include "chunk/Chunk.h"
 
 //-------------------------------------------------
@@ -15,6 +16,7 @@ sg::file::GamFile::GamFile(const std::string& t_filePath)
 
 sg::file::GamFile::~GamFile()
 {
+    Log::SG_LOG_DEBUG("[GamFile::~GamFile()] Destruct GamFile.");
 }
 
 //-------------------------------------------------
@@ -36,6 +38,8 @@ void sg::file::GamFile::ReadContentFromChunkData()
 
         if (id == std::string("INSELHAUS"))
         {
+            auto* currentIsland5{ m_island5List.back().get() };
+            currentIsland5->AddIslandHouse(std::make_unique<chunk::IslandHouse>(chunk->GetData(), currentIsland5));
         }
     }
 
