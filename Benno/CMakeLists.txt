@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 
 project(Benno)
 
@@ -21,7 +21,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} libGL.so)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)

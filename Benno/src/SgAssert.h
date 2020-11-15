@@ -4,7 +4,7 @@
 
 #if defined(_WIN64)
     #define SG_DEBUG_BREAK __debugbreak()
-#elif defined(__linux__) && defined(__GNUC__) && (__GNUC__ >= 7)
+#elif defined(__linux__) && defined(__GNUC__) && (__GNUC__ >= 8)
     #include <signal.h>
     #define SG_DEBUG_BREAK raise(SIGTRAP)
 #else

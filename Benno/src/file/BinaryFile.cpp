@@ -13,6 +13,9 @@ sg::file::BinaryFile::BinaryFile(const std::string& t_filePath)
     ReadChunksFromFile();
 }
 
+sg::file::BinaryFile::~BinaryFile()
+{}
+
 //-------------------------------------------------
 // Getter / read-only
 //-------------------------------------------------

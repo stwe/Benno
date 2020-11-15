@@ -27,7 +27,7 @@ namespace sg::file
         BinaryFile& operator=(const BinaryFile& t_other) = delete;
         BinaryFile& operator=(BinaryFile&& t_other) noexcept = delete;
 
-        virtual ~BinaryFile() = default;
+        virtual ~BinaryFile();
 
         //-------------------------------------------------
         // Getter / read-only
