@@ -6,6 +6,8 @@
 - [GLEW](http://glew.sourceforge.net/)
 - [GLM](https://glm.g-truc.net/0.9.9/index.html)
 - [spdlog](https://github.com/gabime/spdlog)
+- [Dear ImGui](https://github.com/ocornut/imgui)
+- [nlohmann_json](https://github.com/nlohmann/json)
 - C++ 17 Compiler
 
 ## Platforms
@@ -35,6 +37,8 @@ sdl2/2.0.12@bincrafters/stable
 glew/2.1.0@bincrafters/stable
 glm/0.9.9.8
 spdlog/1.8.0
+imgui/1.79
+nlohmann_json/3.9.1
 
 [generators]
 premake
