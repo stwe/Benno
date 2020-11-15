@@ -1,5 +1,6 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <iostream>
 #include "HousesJsonFile.h"
 #include "Log.h"
 #include "SgException.h"
@@ -53,13 +54,13 @@ void sg::data::HousesJsonFile::ReadFileData(const std::string& t_filePath)
         throw SG_EXCEPTION("[HousesJsonFile::ReadFileData()] Exception caught while loading of file " + t_filePath + ".");
     }
 
-    auto nodes{ json["object"][2]["objects"] };
+    auto nodes = json["object"][2]["objects"];
 
     for (auto& node : nodes)
     {
         Building building;
 
-        auto vars{ node["variables"]["variable"] };
+        auto vars = node["variables"]["variable"];
 
         for (auto& var : vars)
         {
