@@ -29,10 +29,10 @@ namespace sg::chunk
         uint8_t playerflags;
         OreMountainData eisenberg[4]; // todo
         OreMountainData vulkanberg[4]; // todo
-        Fertility fertility;
+        Island::Fertility fertility;
         uint16_t fileNumber;
-        IslandSize size;
-        IslandClimate climate;
+        Island::Size size;
+        Island::Climate climate;
         uint8_t modifiedFlag;
         uint8_t duerrproz;
         uint8_t rotier;

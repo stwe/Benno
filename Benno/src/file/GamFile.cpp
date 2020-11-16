@@ -20,6 +20,15 @@ sg::file::GamFile::~GamFile()
 }
 
 //-------------------------------------------------
+// Getter / read-only
+//-------------------------------------------------
+
+const std::vector<std::unique_ptr<sg::chunk::Island5>>& sg::file::GamFile::GetIsland5List() const noexcept
+{
+    return m_island5List;
+}
+
+//-------------------------------------------------
 // BinaryFile Interface
 //-------------------------------------------------
 

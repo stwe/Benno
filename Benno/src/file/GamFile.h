@@ -28,6 +28,12 @@ namespace sg::file
         ~GamFile();
 
         //-------------------------------------------------
+        // Getter / read-only
+        //-------------------------------------------------
+
+        [[nodiscard]] const std::vector<std::unique_ptr<chunk::Island5>>& GetIsland5List() const noexcept;
+
+        //-------------------------------------------------
         // BinaryFile Interface
         //-------------------------------------------------
 

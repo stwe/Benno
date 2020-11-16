@@ -7,6 +7,7 @@
 #include "file/PaletteFile.h"
 #include "file/BshFile.h"
 #include "file/GamFile.h"
+#include "chunk/Island5.h"
 #include "renderer/MeshRenderer.h"
 
 //-------------------------------------------------
@@ -68,7 +69,48 @@ void sg::GameLayer::OnGuiRender()
 {
     ImGui::Begin("GameLayer Debug");
 
-    ImGui::SliderInt("Bsh Tile Graphic", &m_bshIndex, 110, 5963);
+    //ImGui::SliderInt("Bsh Tile Graphic", &m_bshIndex, 110, 5963);
+
+    // List Islands
+    static auto selectedIslandNumber{ 0 };
+    static chunk::Island5* selectedIsland5{ nullptr };
+
+    ImGui::BeginChild("Islands", ImVec2(150, 0), true);
+
+    for (const auto& island5 : m_gamFile->GetIsland5List())
+    {
+        auto label{ std::string("Island ") + std::to_string(island5->GetIsland5Data().islandNumber) };
+        if (ImGui::Selectable(label.c_str(), selectedIslandNumber == island5->GetIsland5Data().islandNumber))
+        {
+            selectedIslandNumber = island5->GetIsland5Data().islandNumber;
+            selectedIsland5 = island5.get();
+        }
+    }
+
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+
+    // Island5 data view
+    ImGui::BeginGroup();
+    ImGui::BeginChild("Island5 data view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+    ImGui::Text("Selected Island: %d", selectedIslandNumber);
+    ImGui::Separator();
+
+    if (selectedIsland5)
+    {
+        ImGui::Text("Width: %d", selectedIsland5->GetIsland5Data().width);
+        ImGui::Text("Height: %d", selectedIsland5->GetIsland5Data().height);
+        ImGui::Text("Position x: %d", selectedIsland5->GetIsland5Data().posx);
+        ImGui::Text("Position y: %d", selectedIsland5->GetIsland5Data().posy);
+        ImGui::Text("Modified: %s", selectedIsland5->GetIsland5Data().modifiedFlag == 1 ? "yes" : "no");
+        ImGui::Text("Fertility: %s", chunk::Island::FertilityToString(selectedIsland5->GetIsland5Data().fertility).c_str());
+        ImGui::Text("Size: %s", chunk::Island::SizeToString(selectedIsland5->GetIsland5Data().size).c_str());
+        ImGui::Text("Climate: %s", chunk::Island::ClimateToString(selectedIsland5->GetIsland5Data().climate).c_str());
+    }
+
+    ImGui::EndChild();
+    ImGui::EndGroup();
 
     ImGui::End();
 }
