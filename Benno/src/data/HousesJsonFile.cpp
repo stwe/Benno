@@ -67,6 +67,7 @@ void sg::data::HousesJsonFile::ReadFileData(const std::string& t_filePath)
             if (name == "Id")
             {
                 building.id = var["valueInt"];
+                building.id -= 20000;
             }
             if (name == "Gfx")
             {

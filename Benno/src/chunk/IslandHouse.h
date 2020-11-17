@@ -1,8 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 #include "Tile.h"
+
+namespace sg::data
+{
+    class HousesJsonFile;
+}
 
 namespace sg::chunk
 {
@@ -11,11 +17,13 @@ namespace sg::chunk
     class IslandHouse
     {
     public:
+        static constexpr auto NO_GRAPHIC{ 0xFFFF };
+
         //-------------------------------------------------
         // Ctors. / Dtor.
         //-------------------------------------------------
 
-        IslandHouse(const std::vector<uint8_t>& t_chunkData, Island5* t_parentIsland5);
+        IslandHouse(const std::vector<uint8_t>& t_chunkData, Island5* t_parentIsland5, std::shared_ptr<data::HousesJsonFile> t_housesJsonFile);
 
         IslandHouse(const IslandHouse& t_other) = delete;
         IslandHouse(IslandHouse&& t_other) noexcept = delete;
@@ -24,10 +32,17 @@ namespace sg::chunk
 
         ~IslandHouse();
 
+        //-------------------------------------------------
+        // Getter / read-only
+        //-------------------------------------------------
+
+        [[nodiscard]] Tile GetTile(int t_x, int t_y) const;
+
     protected:
 
     private:
         Island5* m_parentIsland5{ nullptr };
+        std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
 
         size_t m_nrOfRawElements{ 0 };
 
@@ -45,5 +60,14 @@ namespace sg::chunk
         //-------------------------------------------------
 
         void CreateLayerTiles();
+
+        //-------------------------------------------------
+        // Helper
+        //-------------------------------------------------
+
+        [[nodiscard]] bool IsValidIslandNumber(int t_islandNumber) const noexcept;
+        [[nodiscard]] bool IsValidTilePosition(int t_xPosOnIsland, int t_yPosOnIsland) const noexcept;
+        [[nodiscard]] bool IsValidTilePosX(int t_xPosOnIsland) const noexcept;
+        [[nodiscard]] bool IsValidTilePosY(int t_yPosOnIsland) const noexcept;
     };
 }

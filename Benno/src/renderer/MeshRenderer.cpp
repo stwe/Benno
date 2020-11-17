@@ -22,8 +22,8 @@ sg::renderer::MeshRenderer::MeshRenderer()
 //-------------------------------------------------
 
 void sg::renderer::MeshRenderer::Render(
-    const int t_x,
-    const int t_y,
+    const float t_x,
+    const float t_y,
     const file::BshTexture& t_bshTexture,
     const glm::mat4& t_projectionMatrix
 )

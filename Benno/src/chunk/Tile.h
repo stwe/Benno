@@ -50,5 +50,20 @@ namespace sg::chunk
          * @brief The player that has occupies this tile.
          */
         uint32_t playerNumber : 4;
+
+        //-------------------------------------------------
+        // Ctors. / Dtor.
+        //-------------------------------------------------
+
+        Tile()
+        {
+            memset(this, 0, sizeof(Tile));
+        }
+
+        explicit Tile(const uint16_t t_graphicId)
+            : Tile()
+        {
+            graphicId = t_graphicId;
+        }
     };
 }

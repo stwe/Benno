@@ -25,7 +25,7 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 
 void sg::GameLayer::OnCreate()
 {
-    m_housesJsonFile = std::make_unique<data::HousesJsonFile>("res/data/houses.json");
+    m_housesJsonFile = std::make_shared<data::HousesJsonFile>("res/data/houses.json");
 
     m_paletteFile = std::make_unique<file::PaletteFile>(m_parentGame->GetFiles().GetColFile().path);
     m_paletteFile->ReadContentFromChunkData();
@@ -34,7 +34,7 @@ void sg::GameLayer::OnCreate()
     m_bshFile = std::make_unique<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
-    m_gamFile = std::make_unique<file::GamFile>("res/savegame/game01.gam");
+    m_gamFile = std::make_unique<file::GamFile>("res/savegame/game01.gam", m_housesJsonFile);
     m_gamFile->ReadContentFromChunkData();
 
     m_renderer = std::make_unique<renderer::MeshRenderer>();
@@ -55,12 +55,7 @@ void sg::GameLayer::OnRender()
     OpenGL::Clear();
     OpenGL::EnableAlphaBlending();
 
-    const auto& texture{ m_bshFile->GetBshTexture(m_bshIndex) };
-    m_renderer->Render(
-        250, 250,
-        texture,
-        m_parentGame->GetWindow().GetOrthographicProjectionMatrix()
-    );
+    m_gamFile->Render(m_bshFile.get(), m_renderer.get(), m_parentGame->GetWindow().GetOrthographicProjectionMatrix());
 
     OpenGL::DisableBlending();
 }
@@ -68,8 +63,6 @@ void sg::GameLayer::OnRender()
 void sg::GameLayer::OnGuiRender()
 {
     ImGui::Begin("GameLayer Debug");
-
-    //ImGui::SliderInt("Bsh Tile Graphic", &m_bshIndex, 110, 5963);
 
     // List Islands
     static auto selectedIslandNumber{ 0 };

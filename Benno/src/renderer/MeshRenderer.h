@@ -31,8 +31,8 @@ namespace sg::renderer
         //-------------------------------------------------
 
         void Render(
-            int t_x,
-            int t_y,
+            float t_x,
+            float t_y,
             const file::BshTexture& t_bshTexture,
             const glm::mat4& t_projectionMatrix
         );

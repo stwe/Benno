@@ -40,7 +40,7 @@ namespace sg
 
     struct GameOptions
     {
-        renderer::Zoom::ZoomId currentZoomId{ renderer::Zoom::ZoomId::GFX };
+        renderer::Zoom::ZoomId currentZoomId{ renderer::Zoom::ZoomId::SGFX };
 #if defined(_WIN64)
         std::string resourcePath{ "E:\\Anno" };
 #elif defined(__linux__) && defined(__GNUC__) && (__GNUC__ >= 8)
