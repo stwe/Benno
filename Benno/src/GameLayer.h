@@ -15,11 +15,6 @@ namespace sg::file
     class GamFile;
 }
 
-namespace sg::renderer
-{
-    class MeshRenderer;
-}
-
 namespace sg
 {
     class Game;
@@ -27,6 +22,9 @@ namespace sg
     class GameLayer : public Layer
     {
     public:
+        static constexpr auto WORLD_WIDTH{ 500 };
+        static constexpr auto WORLD_HEIGHT{ 350 };
+
         //-------------------------------------------------
         // Ctors. / Dtor.
         //-------------------------------------------------
@@ -60,8 +58,7 @@ namespace sg
     private:
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
         std::unique_ptr<file::PaletteFile> m_paletteFile;
-        std::unique_ptr<file::BshFile> m_bshFile;
+        std::shared_ptr<file::BshFile> m_bshFile;
         std::unique_ptr<file::GamFile> m_gamFile;
-        std::unique_ptr<renderer::MeshRenderer> m_renderer;
     };
 }

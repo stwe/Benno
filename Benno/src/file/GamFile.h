@@ -2,10 +2,13 @@
 
 #include <glm/mat4x4.hpp>
 #include "BinaryFile.h"
+#include "renderer/MeshRenderer.h"
+#include "renderer/Zoom.h"
+#include "chunk/TileGraphic.h"
 
 namespace sg::renderer
 {
-    class MeshRenderer;
+    class DeepWaterRenderer;
 }
 
 namespace sg::chunk
@@ -31,7 +34,12 @@ namespace sg::file
 
         GamFile() = delete;
 
-        GamFile(const std::string& t_filePath, std::shared_ptr<data::HousesJsonFile> t_housesJsonFile);
+        GamFile(
+            const std::string& t_filePath,
+            std::shared_ptr<BshFile> t_bshFile,
+            std::shared_ptr<data::HousesJsonFile> t_housesJsonFile,
+            const renderer::Zoom& t_zoom
+        );
 
         GamFile(const GamFile& t_other) = delete;
         GamFile(GamFile&& t_other) noexcept = delete;
@@ -50,7 +58,7 @@ namespace sg::file
         // Render
         //-------------------------------------------------
 
-        void Render(BshFile* t_bshFile, renderer::MeshRenderer* t_renderer, const glm::mat4& t_mat) const;
+        void Render(const glm::mat4& t_mat);
 
         //-------------------------------------------------
         // BinaryFile Interface
@@ -61,14 +69,39 @@ namespace sg::file
     protected:
 
     private:
+        std::shared_ptr<BshFile> m_bshFile;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
+        renderer::Zoom m_zoom;
 
         std::vector<std::unique_ptr<chunk::Island5>> m_island5List;
+
+        std::unique_ptr<renderer::DeepWaterRenderer> m_deepWaterRenderer;
+        renderer::MeshRenderer m_meshRenderer;
 
         //-------------------------------------------------
         // Island5 Layer
         //-------------------------------------------------
 
         void InitIsland5Layer();
+
+        //-------------------------------------------------
+        // Deep water area
+        //-------------------------------------------------
+
+        void InitDeepWaterArea();
+        void CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const;
+
+        //-------------------------------------------------
+        // Islands area
+        //-------------------------------------------------
+
+
+
+        //-------------------------------------------------
+        // Helper
+        //-------------------------------------------------
+
+        void AddTileGraphicToList(int t_x, int t_y, std::vector<chunk::TileGraphic>& t_graphicTiles, chunk::TileGraphic& t_tileGraphic) const;
+        static bool IsIslandOnPosition(int t_x, int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List);
     };
 }

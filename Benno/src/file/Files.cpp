@@ -64,7 +64,7 @@ void sg::file::Files::InitDirectoryTree(const std::string& t_path)
                     // BSH files
                     if (extension == ".bsh")
                     {
-                        const auto zoomId{ renderer::Zoom::StringToZoomId(ToUpperCase(entry.path().filename().string())) };
+                        const auto zoomId{ renderer::Zoom::StringToZoom(ToUpperCase(entry.path().filename().string())) };
 
                         if (zoomId != renderer::Zoom::ZoomId::NOT_ZOOMABLE)
                         {

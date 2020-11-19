@@ -8,7 +8,6 @@
 #include "file/BshFile.h"
 #include "file/GamFile.h"
 #include "chunk/Island5.h"
-#include "renderer/MeshRenderer.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -30,14 +29,12 @@ void sg::GameLayer::OnCreate()
     m_paletteFile = std::make_unique<file::PaletteFile>(m_parentGame->GetFiles().GetColFile().path);
     m_paletteFile->ReadContentFromChunkData();
 
-    auto stadtfld{ m_parentGame->GetFiles().GetBshFile(m_parentGame->gameOptions.currentZoomId, file::BshFile::BshFileNameId::STADTFLD).value() };
-    m_bshFile = std::make_unique<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
+    auto stadtfld{ m_parentGame->GetFiles().GetBshFile(m_parentGame->gameOptions.currentZoom.GetZoomId(), file::BshFile::BshFileNameId::STADTFLD).value() };
+    m_bshFile = std::make_shared<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
-    m_gamFile = std::make_unique<file::GamFile>("res/savegame/game01.gam", m_housesJsonFile);
+    m_gamFile = std::make_unique<file::GamFile>("res/savegame/game01.gam", m_bshFile, m_housesJsonFile, m_parentGame->gameOptions.currentZoom);
     m_gamFile->ReadContentFromChunkData();
-
-    m_renderer = std::make_unique<renderer::MeshRenderer>();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }
@@ -55,7 +52,7 @@ void sg::GameLayer::OnRender()
     OpenGL::Clear();
     OpenGL::EnableAlphaBlending();
 
-    m_gamFile->Render(m_bshFile.get(), m_renderer.get(), m_parentGame->GetWindow().GetOrthographicProjectionMatrix());
+    m_gamFile->Render(m_parentGame->GetWindow().GetOrthographicProjectionMatrix());
 
     OpenGL::DisableBlending();
 }
