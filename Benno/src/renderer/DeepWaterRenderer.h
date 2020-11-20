@@ -3,6 +3,11 @@
 #include <memory>
 #include "gl/Shader.h"
 
+namespace sg::camera
+{
+    class OrthographicCamera;
+}
+
 namespace sg::file
 {
     class BshFile;
@@ -46,7 +51,7 @@ namespace sg::renderer
         // Logic
         //-------------------------------------------------
 
-        void Render(const glm::mat4& t_projectionMatrix);
+        void Render(const camera::OrthographicCamera& t_camera);
 
     protected:
 

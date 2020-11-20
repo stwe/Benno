@@ -9,6 +9,7 @@
 #include "chunk/IslandHouse.h"
 #include "chunk/Chunk.h"
 #include "renderer/DeepWaterRenderer.h"
+#include "camera/OrthographicCamera.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -46,11 +47,11 @@ const std::vector<std::unique_ptr<sg::chunk::Island5>>& sg::file::GamFile::GetIs
 // Render
 //-------------------------------------------------
 
-void sg::file::GamFile::Render(const glm::mat4& t_mat)
+void sg::file::GamFile::Render(const camera::OrthographicCamera& t_camera)
 {
-    m_deepWaterRenderer->Render(t_mat);
+    m_deepWaterRenderer->Render(t_camera);
 
-    /*
+    // todo: temp code, just for testing, slow...very slow
     for (const auto& island5 : m_island5List)
     {
         const auto yPos{ island5->GetIsland5Data().posy };
@@ -72,15 +73,14 @@ void sg::file::GamFile::Render(const glm::mat4& t_mat)
                 const auto position{ glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height) };
 
                 m_meshRenderer.Render(
-                    position.x - 3000.0f,
-                    position.y - 2000.0f,
+                    position.x,
+                    position.y,
                     bshTexture,
-                    t_mat
+                    t_camera
                 );
             }
         }
     }
-    */
 }
 
 //-------------------------------------------------
@@ -179,12 +179,8 @@ void sg::file::GamFile::AddTileGraphicToList(const int t_x, const int t_y, std::
     const auto sx{ (t_x - t_y + GameLayer::WORLD_HEIGHT) * m_zoom.GetXRaster() };
     const auto sy{ (t_x + t_y) * m_zoom.GetYRaster() + 2 * m_zoom.GetYRaster() - t_tileGraphic.groundHeight / m_zoom.GetElevation() };
 
-    auto position{ glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height) };
+    const auto position{ glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height) };
     const auto size{ glm::vec2(bshTexture.width, bshTexture.height) };
-
-    // todo: temp code
-    position.x -= 3000.0f;
-    position.y -= 2000.0f;
 
     t_tileGraphic.screenPosition = position;
     t_tileGraphic.size = size;

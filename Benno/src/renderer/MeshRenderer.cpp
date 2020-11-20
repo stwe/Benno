@@ -3,6 +3,7 @@
 #include "OpenGL.h"
 #include "file/BshTexture.h"
 #include "gl/Texture.h"
+#include "camera/OrthographicCamera.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -13,7 +14,7 @@ sg::renderer::MeshRenderer::MeshRenderer()
     Init();
 
     m_shader.AddUniform("model");
-    m_shader.AddUniform("projection");
+    m_shader.AddUniform("viewProjection");
     m_shader.AddUniform("diffuseMap");
 }
 
@@ -25,11 +26,13 @@ void sg::renderer::MeshRenderer::Render(
     const float t_x,
     const float t_y,
     const file::BshTexture& t_bshTexture,
-    const glm::mat4& t_projectionMatrix
+    const camera::OrthographicCamera& t_camera
 )
 {
-    glBindVertexArray(m_vao);
+    OpenGL::EnableAlphaBlending();
+
     m_shader.Bind();
+    glBindVertexArray(m_vao);
 
     auto model = glm::mat4(1.0f);
     model = translate(model, glm::vec3(t_x, t_y, 0.0f));
@@ -38,13 +41,15 @@ void sg::renderer::MeshRenderer::Render(
     gl::Texture::BindForReading(t_bshTexture.textureId, GL_TEXTURE0);
 
     m_shader.SetUniform("model", model);
-    m_shader.SetUniform("projection", t_projectionMatrix);
+    m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
     m_shader.SetUniform("diffuseMap", 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    gl::Shader::Unbind();
     glBindVertexArray(0);
+    gl::Shader::Unbind();
+
+    OpenGL::DisableBlending();
 }
 
 //-------------------------------------------------

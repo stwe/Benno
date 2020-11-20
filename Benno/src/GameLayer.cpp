@@ -1,7 +1,7 @@
 #include "GameLayer.h"
 #include "Game.h"
 #include "OpenGL.h"
-#include "Window.h"
+#include "camera/OrthographicCamera.h"
 #include "vendor/imgui/imgui.h"
 #include "data/HousesJsonFile.h"
 #include "file/PaletteFile.h"
@@ -24,6 +24,10 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 
 void sg::GameLayer::OnCreate()
 {
+    m_camera = std::make_unique<camera::OrthographicCamera>(this);
+    m_camera->SetPosition(glm::vec2(5600.0f, 1500.0f));
+    m_camera->SetCameraVelocity(1000.0f);
+
     m_housesJsonFile = std::make_shared<data::HousesJsonFile>("res/data/houses.json");
 
     m_paletteFile = std::make_unique<file::PaletteFile>(m_parentGame->GetFiles().GetColFile().path);
@@ -52,7 +56,7 @@ void sg::GameLayer::OnRender()
     OpenGL::Clear();
     OpenGL::EnableAlphaBlending();
 
-    m_gamFile->Render(m_parentGame->GetWindow().GetOrthographicProjectionMatrix());
+    m_gamFile->Render(*m_camera);
 
     OpenGL::DisableBlending();
 }
@@ -60,6 +64,15 @@ void sg::GameLayer::OnRender()
 void sg::GameLayer::OnGuiRender()
 {
     ImGui::Begin("GameLayer Debug");
+
+    ImGui::Text("Press the WASD keys to move the camera.");
+    ImGui::Spacing();
+    ImGui::Text("Camera x: %f", m_camera->GetPosition().x);
+    ImGui::Text("Camera y: %f", m_camera->GetPosition().y);
+    ImGui::Spacing();
+    ImGui::Text("Current zoom: %s", renderer::Zoom::ZoomToString(m_parentGame->gameOptions.currentZoom.GetZoomId()).c_str());
+
+    ImGui::Separator();
 
     // List Islands
     static auto selectedIslandNumber{ 0 };
@@ -111,4 +124,5 @@ void sg::GameLayer::OnSdlEvent(const SDL_Event& t_event)
 
 void sg::GameLayer::OnInput()
 {
+    m_camera->OnUpdate(0.016f);
 }

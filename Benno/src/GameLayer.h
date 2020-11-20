@@ -3,6 +3,11 @@
 #include <memory>
 #include "Layer.h"
 
+namespace sg::camera
+{
+    class OrthographicCamera;
+}
+
 namespace sg::data
 {
     class HousesJsonFile;
@@ -56,6 +61,7 @@ namespace sg
     protected:
 
     private:
+        std::unique_ptr<camera::OrthographicCamera> m_camera;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::shared_ptr<file::BshFile> m_bshFile;

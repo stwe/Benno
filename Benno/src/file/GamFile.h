@@ -1,10 +1,14 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
 #include "BinaryFile.h"
 #include "renderer/MeshRenderer.h"
 #include "renderer/Zoom.h"
 #include "chunk/TileGraphic.h"
+
+namespace sg::camera
+{
+    class OrthographicCamera;
+}
 
 namespace sg::renderer
 {
@@ -58,7 +62,7 @@ namespace sg::file
         // Render
         //-------------------------------------------------
 
-        void Render(const glm::mat4& t_mat);
+        void Render(const camera::OrthographicCamera& t_camera);
 
         //-------------------------------------------------
         // BinaryFile Interface

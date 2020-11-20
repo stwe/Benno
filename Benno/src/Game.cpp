@@ -215,4 +215,9 @@ void sg::Game::OnInput()
     {
         Log::SG_LOG_DEBUG("Right mouse button pressed.");
     }
+
+    for (auto* layer : m_layerList)
+    {
+        layer->OnInput();
+    }
 }

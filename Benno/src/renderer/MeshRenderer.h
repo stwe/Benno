@@ -1,7 +1,11 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
 #include "gl/Shader.h"
+
+namespace sg::camera
+{
+    class OrthographicCamera;
+}
 
 namespace sg::file
 {
@@ -34,7 +38,7 @@ namespace sg::renderer
             float t_x,
             float t_y,
             const file::BshTexture& t_bshTexture,
-            const glm::mat4& t_projectionMatrix
+            const camera::OrthographicCamera& t_camera
         );
 
     protected:

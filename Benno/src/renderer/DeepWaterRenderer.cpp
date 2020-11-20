@@ -6,6 +6,7 @@
 #include "gl/Texture.h"
 #include "file/BshFile.h"
 #include "file/BshTexture.h"
+#include "camera/OrthographicCamera.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -34,7 +35,7 @@ sg::renderer::DeepWaterRenderer::~DeepWaterRenderer()
 
 void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
 {
-    m_shader.AddUniform("projection");
+    m_shader.AddUniform("viewProjection");
     m_shader.AddUniform("sampler");
 
     m_textureWidth = t_zoom.GetDefaultTileWidth();
@@ -50,7 +51,7 @@ void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
 // Logic
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::Render(const glm::mat4& t_projectionMatrix)
+void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t_camera)
 {
     OpenGL::EnableAlphaBlending();
 
@@ -59,7 +60,7 @@ void sg::renderer::DeepWaterRenderer::Render(const glm::mat4& t_projectionMatrix
 
     gl::Texture::BindForReading(m_textureArrayId, GL_TEXTURE0, GL_TEXTURE_2D_ARRAY);
 
-    m_shader.SetUniform("projection", t_projectionMatrix);
+    m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
     m_shader.SetUniform("sampler", 0);
 
     glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, static_cast<uint32_t>(m_deepWaterModelMatrices.size()));
