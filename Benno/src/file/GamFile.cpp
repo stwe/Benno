@@ -169,6 +169,14 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
 }
 
 //-------------------------------------------------
+// Islands area
+//-------------------------------------------------
+
+void sg::file::GamFile::InitIslandsArea()
+{
+}
+
+//-------------------------------------------------
 // Helper
 //-------------------------------------------------
 

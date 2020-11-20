@@ -18,8 +18,8 @@ sg::renderer::DeepWaterRenderer::DeepWaterRenderer(
     std::vector<int>&& t_deepWaterTextureBuffer
 )
     : m_bshFile{ std::move(t_bshFile) }
-    , m_deepWaterModelMatrices{ t_deepWaterModelMatrices }
-    , m_deepWaterTextureBuffer{ t_deepWaterTextureBuffer }
+    , m_deepWaterModelMatrices{ std::move(t_deepWaterModelMatrices) }
+    , m_deepWaterTextureBuffer{ std::move(t_deepWaterTextureBuffer) }
 {
     Log::SG_LOG_DEBUG("[DeepWaterRenderer::DeepWaterRenderer()] Create DeepWaterRenderer.");
 }
