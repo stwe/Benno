@@ -4,7 +4,10 @@
 
 ## Supported versions
 
+The project works with Anno 1602: 
 
+- NINA ("Neue Inseln, Neue Abenteuer")
+- History Edition
 
 ## Requirements
 
