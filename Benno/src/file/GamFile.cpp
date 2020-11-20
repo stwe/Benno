@@ -52,34 +52,12 @@ void sg::file::GamFile::Render(const camera::OrthographicCamera& t_camera)
     m_deepWaterRenderer->Render(t_camera);
 
     // todo: temp code, just for testing, slow...very slow
-    for (const auto& island5 : m_island5List)
+    auto i{ 0 };
+    for (const auto& tile : m_islandsGraphicTiles)
     {
-        const auto yPos{ island5->GetIsland5Data().posy };
-        const auto xPos{ island5->GetIsland5Data().posx };
-        const auto height{ island5->GetIsland5Data().height };
-        const auto width{ island5->GetIsland5Data().width };
-
-        for (auto y{ yPos }; y < yPos + height; ++y)
-        {
-            for (auto x{ xPos }; x < xPos + width; ++x)
-            {
-                const auto tile{ island5->GetTileFromLayer(x - xPos, y - yPos) };
-                const auto field{ island5->GetGraphicForTile(tile) };
-                const auto& bshTexture{ m_bshFile->GetBshTexture(field.gfxIndex) };
-
-                const auto sx{ (x - y + GameLayer::WORLD_HEIGHT) * m_zoom.GetXRaster() };
-                const auto sy{ (x + y) * m_zoom.GetYRaster() + 2 * m_zoom.GetYRaster() - field.groundHeight / m_zoom.GetElevation() };
-
-                const auto position{ glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height) };
-
-                m_meshRenderer.Render(
-                    position.x,
-                    position.y,
-                    bshTexture,
-                    t_camera
-                );
-            }
-        }
+        const auto& bshTexture{ m_bshFile->GetBshTexture(tile.gfxIndex) };
+        m_meshRenderer.Render(m_islandsModelMatrices[i], bshTexture.textureId, t_camera);
+        i++;
     }
 }
 
@@ -109,6 +87,7 @@ void sg::file::GamFile::ReadContentFromChunkData()
 
     InitIsland5Layer();
     InitDeepWaterArea();
+    InitIslandsArea();
 
     Log::SG_LOG_DEBUG("[GamFile::ReadContentFromChunkData()] Savegame data read successfully.");
 }
@@ -174,6 +153,32 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
 
 void sg::file::GamFile::InitIslandsArea()
 {
+    Log::SG_LOG_DEBUG("[GamFile::InitIslandsArea()] Create data for the Mesh Renderer.");
+
+    CreateIslandsGraphicTiles(m_islandsGraphicTiles);
+
+    for (const auto& tile : m_islandsGraphicTiles)
+    {
+        m_islandsModelMatrices.push_back(tile.GetModelMatrix());
+    }
+}
+
+void sg::file::GamFile::CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const
+{
+    for (auto y{ 0 }; y < GameLayer::WORLD_HEIGHT; ++y)
+    {
+        for (auto x{ 0 }; x < GameLayer::WORLD_WIDTH; ++x)
+        {
+            auto* island{ IsIslandOnPosition(x, y, m_island5List) };
+            if (island)
+            {
+                const auto tile{ island->GetTileFromLayer(x - island->GetIsland5Data().posx, y - island->GetIsland5Data().posy) };
+                auto islandTileGraphic{ island->GetGraphicForTile(tile) };
+
+                AddTileGraphicToList(x, y, t_graphicTiles, islandTileGraphic);
+            }
+        }
+    }
 }
 
 //-------------------------------------------------
@@ -196,7 +201,7 @@ void sg::file::GamFile::AddTileGraphicToList(const int t_x, const int t_y, std::
     t_graphicTiles.push_back(t_tileGraphic);
 }
 
-bool sg::file::GamFile::IsIslandOnPosition(const int t_x, const int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List)
+sg::chunk::Island5* sg::file::GamFile::IsIslandOnPosition(const int t_x, const int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List)
 {
     for (const auto& island5 : t_island5List)
     {
@@ -206,9 +211,9 @@ bool sg::file::GamFile::IsIslandOnPosition(const int t_x, const int t_y, const s
             t_y < island5->GetIsland5Data().posy + island5->GetIsland5Data().height
             )
         {
-            return true;
+            return island5.get();
         }
     }
 
-    return false;
+    return nullptr;
 }

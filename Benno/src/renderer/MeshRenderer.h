@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/mat4x4.hpp>
 #include "gl/Shader.h"
 
 namespace sg::camera
@@ -35,9 +36,8 @@ namespace sg::renderer
         //-------------------------------------------------
 
         void Render(
-            float t_x,
-            float t_y,
-            const file::BshTexture& t_bshTexture,
+            glm::mat4& t_modelMatrix,
+            uint32_t t_bshTextureId,
             const camera::OrthographicCamera& t_camera
         );
 

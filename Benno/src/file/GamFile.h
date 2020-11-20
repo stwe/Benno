@@ -82,6 +82,9 @@ namespace sg::file
         std::unique_ptr<renderer::DeepWaterRenderer> m_deepWaterRenderer;
         renderer::MeshRenderer m_meshRenderer;
 
+        std::vector<chunk::TileGraphic> m_islandsGraphicTiles;
+        std::vector<glm::mat4> m_islandsModelMatrices;
+
         //-------------------------------------------------
         // Island5 Layer
         //-------------------------------------------------
@@ -100,12 +103,13 @@ namespace sg::file
         //-------------------------------------------------
 
         void InitIslandsArea();
+        void CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const;
 
         //-------------------------------------------------
         // Helper
         //-------------------------------------------------
 
         void AddTileGraphicToList(int t_x, int t_y, std::vector<chunk::TileGraphic>& t_graphicTiles, chunk::TileGraphic& t_tileGraphic) const;
-        static bool IsIslandOnPosition(int t_x, int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List);
+        static chunk::Island5* IsIslandOnPosition(int t_x, int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List);
     };
 }

@@ -23,9 +23,8 @@ sg::renderer::MeshRenderer::MeshRenderer()
 //-------------------------------------------------
 
 void sg::renderer::MeshRenderer::Render(
-    const float t_x,
-    const float t_y,
-    const file::BshTexture& t_bshTexture,
+    glm::mat4& t_modelMatrix,
+    const uint32_t t_bshTextureId,
     const camera::OrthographicCamera& t_camera
 )
 {
@@ -34,13 +33,9 @@ void sg::renderer::MeshRenderer::Render(
     m_shader.Bind();
     glBindVertexArray(m_vao);
 
-    auto model = glm::mat4(1.0f);
-    model = translate(model, glm::vec3(t_x, t_y, 0.0f));
-    model = scale(model, glm::vec3(t_bshTexture.width, t_bshTexture.height, 1.0f));
+    gl::Texture::BindForReading(t_bshTextureId, GL_TEXTURE0);
 
-    gl::Texture::BindForReading(t_bshTexture.textureId, GL_TEXTURE0);
-
-    m_shader.SetUniform("model", model);
+    m_shader.SetUniform("model", t_modelMatrix);
     m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
     m_shader.SetUniform("diffuseMap", 0);
 
@@ -56,7 +51,6 @@ void sg::renderer::MeshRenderer::Render(
 // Init
 //-------------------------------------------------
 
-// todo Vao && Vbo classes
 void sg::renderer::MeshRenderer::Init()
 {
     float vertices[] = {
