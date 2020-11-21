@@ -134,7 +134,7 @@ void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     // stora data
-    glBufferData(GL_ARRAY_BUFFER, m_deepWaterModelMatrices.size() * sizeof glm::mat4, m_deepWaterModelMatrices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_deepWaterModelMatrices.size() * sizeof(glm::mat4), m_deepWaterModelMatrices.data(), GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(1);

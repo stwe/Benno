@@ -139,7 +139,7 @@ void sg::renderer::IslandsRenderer::AddModelMatricesVbo()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     // stora data
-    glBufferData(GL_ARRAY_BUFFER, m_islandsModelMatrices.size() * sizeof glm::mat4, m_islandsModelMatrices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_islandsModelMatrices.size() * sizeof(glm::mat4), m_islandsModelMatrices.data(), GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(1);
