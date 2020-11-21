@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 
 namespace sg::chunk
 {
@@ -57,7 +58,7 @@ namespace sg::chunk
 
         Tile()
         {
-            memset(this, 0, sizeof(Tile));
+            std::memset(this, 0, sizeof(Tile));
         }
 
         explicit Tile(const uint16_t t_graphicId)

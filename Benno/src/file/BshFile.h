@@ -99,6 +99,7 @@ namespace sg::file
         // Getter / read-only
         //-------------------------------------------------
 
+        [[nodiscard]] const std::vector<std::unique_ptr<BshTexture>>& GetBshTextures() const noexcept;
         [[nodiscard]] const BshTexture& GetBshTexture(int t_index) const;
 
         //-------------------------------------------------

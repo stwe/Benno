@@ -38,6 +38,11 @@ sg::file::BshFile::~BshFile()
 // Getter / read-only
 //-------------------------------------------------
 
+const std::vector<std::unique_ptr<sg::file::BshTexture>>& sg::file::BshFile::GetBshTextures() const noexcept
+{
+    return m_bshTextures;
+}
+
 const sg::file::BshTexture& sg::file::BshFile::GetBshTexture(const int t_index) const
 {
     return *m_bshTextures[t_index];

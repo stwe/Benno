@@ -1,5 +1,5 @@
 #include <glm/vec4.hpp>
-#include "DeepWaterRenderer.h"
+#include "IslandsRenderer.h"
 #include "Log.h"
 #include "OpenGL.h"
 #include "Zoom.h"
@@ -12,40 +12,44 @@
 // Ctors. / Dtor.
 //-------------------------------------------------
 
-sg::renderer::DeepWaterRenderer::DeepWaterRenderer(
+sg::renderer::IslandsRenderer::IslandsRenderer(
     std::shared_ptr<file::BshFile> t_bshFile,
-    std::vector<glm::mat4>&& t_deepWaterModelMatrices,
-    std::vector<int>&& t_deepWaterTextureBuffer
+    std::vector<glm::mat4>&& t_islandsModelMatrices,
+    std::vector<int>&& t_islandsTextureBuffer,
+    std::vector<float>&& t_yBuffer,
+    std::unordered_map<int, int>&& t_gfxIndexMap
 )
     : m_bshFile{ std::move(t_bshFile) }
-    , m_deepWaterModelMatrices{ std::move(t_deepWaterModelMatrices) }
-    , m_deepWaterTextureBuffer{ std::move(t_deepWaterTextureBuffer) }
+    , m_islandsModelMatrices{ std::move(t_islandsModelMatrices) }
+    , m_islandsTextureBuffer{ std::move(t_islandsTextureBuffer) }
+    , m_yBuffer{ std::move(t_yBuffer) }
+    , m_gfxIndexMap{ std::move(t_gfxIndexMap) }
 {
-    Log::SG_LOG_DEBUG("[DeepWaterRenderer::DeepWaterRenderer()] Create DeepWaterRenderer.");
+    Log::SG_LOG_DEBUG("[IslandsRenderer::IslandsRenderer()] Create IslandsRenderer.");
 }
 
-sg::renderer::DeepWaterRenderer::~DeepWaterRenderer()
+sg::renderer::IslandsRenderer::~IslandsRenderer()
 {
-    Log::SG_LOG_DEBUG("[DeepWaterRenderer::~DeepWaterRenderer()] Destruct DeepWaterRenderer.");
+    Log::SG_LOG_DEBUG("[IslandsRenderer::~IslandsRenderer()] Destruct IslandsRenderer.");
 }
 
 //-------------------------------------------------
 // Init
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
+void sg::renderer::IslandsRenderer::Init(const Zoom& t_zoom)
 {
     m_shader.AddUniform("viewProjection");
     m_shader.AddUniform("sampler");
-
-    m_textureWidth = t_zoom.GetDefaultTileWidth();
-    m_textureHeight = t_zoom.GetDefaultTileHeight();
+    m_shader.AddUniform("maxY");
 
     CreateMesh();
 
     AddModelMatricesVbo();
     AddTextureIndexVbo();
+    AddYVbo();
 
+    SetMax();
     CreateTextureArray();
 }
 
@@ -53,7 +57,7 @@ void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
 // Logic
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t_camera)
+void sg::renderer::IslandsRenderer::Render(const camera::OrthographicCamera& t_camera)
 {
     OpenGL::EnableAlphaBlending();
 
@@ -64,8 +68,9 @@ void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t
 
     m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
     m_shader.SetUniform("sampler", 0);
+    m_shader.SetUniform("maxY", static_cast<float>(m_maxY));
 
-    glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, static_cast<uint32_t>(m_deepWaterModelMatrices.size()));
+    glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, static_cast<uint32_t>(m_islandsModelMatrices.size()));
 
     glBindVertexArray(0);
     gl::Shader::Unbind();
@@ -77,7 +82,7 @@ void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t
 // Mesh
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::CreateMesh()
+void sg::renderer::IslandsRenderer::CreateMesh()
 {
     float vertices[] = {
         // pos      // tex
@@ -108,7 +113,7 @@ void sg::renderer::DeepWaterRenderer::CreateMesh()
 
     // set buffer layout
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, false, 4 * sizeof(float), (void*)0);
 
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -121,7 +126,7 @@ void sg::renderer::DeepWaterRenderer::CreateMesh()
 // Vbo
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
+void sg::renderer::IslandsRenderer::AddModelMatricesVbo()
 {
     // bind VAO
     glBindVertexArray(m_vao);
@@ -134,7 +139,7 @@ void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     // stora data
-    glBufferData(GL_ARRAY_BUFFER, m_deepWaterModelMatrices.size() * sizeof glm::mat4, m_deepWaterModelMatrices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_islandsModelMatrices.size() * sizeof glm::mat4, m_islandsModelMatrices.data(), GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(1);
@@ -161,7 +166,7 @@ void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
     glBindVertexArray(0);
 }
 
-void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
+void sg::renderer::IslandsRenderer::AddTextureIndexVbo()
 {
     // bind VAO
     glBindVertexArray(m_vao);
@@ -174,7 +179,7 @@ void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     // store data
-    glBufferData(GL_ARRAY_BUFFER, m_deepWaterTextureBuffer.size() * sizeof(int), m_deepWaterTextureBuffer.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_islandsTextureBuffer.size() * sizeof(int), m_islandsTextureBuffer.data(), GL_STATIC_DRAW);
 
     // set layout
     glEnableVertexAttribArray(5);
@@ -189,40 +194,90 @@ void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
     glBindVertexArray(0);
 }
 
+void sg::renderer::IslandsRenderer::AddYVbo()
+{
+    // bind VAO
+    glBindVertexArray(m_vao);
+
+    // create VBO
+    uint32_t vbo;
+    glGenBuffers(1, &vbo);
+
+    // bind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    // store data
+    glBufferData(GL_ARRAY_BUFFER, m_yBuffer.size() * sizeof(float), m_yBuffer.data(), GL_STATIC_DRAW);
+
+    // set layout
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(float), (void*)0);
+
+    glVertexAttribDivisor(6, 1);
+
+    // unbind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // unbind VAO
+    glBindVertexArray(0);
+}
+
 //-------------------------------------------------
 // Texture array
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::CreateTextureArray()
+void sg::renderer::IslandsRenderer::SetMax()
+{
+    for (const auto& texture : m_bshFile->GetBshTextures())
+    {
+        if (texture->width > m_maxX)
+        {
+            m_maxX = texture->width;
+        }
+
+        if (texture->height > m_maxY)
+        {
+            m_maxY = texture->height;
+        }
+    }
+}
+
+void sg::renderer::IslandsRenderer::CreateTextureArray()
 {
     m_textureArrayId = gl::Texture::GenerateNewTextureId();
     gl::Texture::Bind(m_textureArrayId, GL_TEXTURE_2D_ARRAY);
-    glTextureStorage3D(m_textureArrayId, MIP_LEVEL_COUNT, GL_RGBA8, m_textureWidth, m_textureHeight, LAYER_COUNT);
+    glTextureStorage3D(m_textureArrayId, MIP_LEVEL_COUNT, GL_RGBA8, m_maxX, m_maxY, static_cast<int32_t>(m_gfxIndexMap.size()));
 
-    auto zOffset{ 0 };
+    std::vector<int> empty(static_cast<size_t>(m_maxX) * m_maxY, 0);
 
-    for (auto i{ START_GFX_INDEX }; i <= END_GFX_INDEX; ++i)
+    for (const auto& entry : m_gfxIndexMap)
     {
-        const auto& currentTexture{ m_bshFile->GetBshTexture(i) };
-        if (currentTexture.width != m_textureWidth ||
-            currentTexture.height != m_textureHeight) {
-            throw SG_EXCEPTION("[DeepWaterRenderer::CreateTextureArray()] Invalid texture size.");
-        }
+        // key gfx : value pos
+
+        const auto& currentTexture{ m_bshFile->GetBshTexture(entry.first) };
 
         glTextureSubImage3D(
             m_textureArrayId,
             0,
             0, 0,
-            zOffset,
-            m_textureWidth, m_textureHeight,
+            entry.second, // zOffset
+            m_maxX, m_maxY,
+            1,
+            GL_BGRA,
+            GL_UNSIGNED_INT_8_8_8_8_REV,
+            empty.data()
+        );
+
+        glTextureSubImage3D(
+            m_textureArrayId,
+            0,
+            0, 0,
+            entry.second,
+            currentTexture.width, currentTexture.height,
             1,
             GL_BGRA,
             GL_UNSIGNED_INT_8_8_8_8_REV,
             currentTexture.texturePixels.data()
         );
-
-        zOffset++;
     }
-
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }

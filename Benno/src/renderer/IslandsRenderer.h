@@ -3,6 +3,7 @@
 #include <glm/mat4x4.hpp>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include "gl/Shader.h"
 
 namespace sg::camera
@@ -19,29 +20,29 @@ namespace sg::renderer
 {
     class Zoom;
 
-    class DeepWaterRenderer
+    class IslandsRenderer
     {
     public:
-        static constexpr auto START_GFX_INDEX{ 758 };
-
         //-------------------------------------------------
         // Ctors. / Dtor.
         //-------------------------------------------------
 
-        DeepWaterRenderer() = delete;
+        IslandsRenderer() = delete;
 
-        DeepWaterRenderer(
+        IslandsRenderer(
             std::shared_ptr<file::BshFile> t_bshFile,
-            std::vector<glm::mat4>&& t_deepWaterModelMatrices,
-            std::vector<int>&& t_deepWaterTextureBuffer
+            std::vector<glm::mat4>&& t_islandsModelMatrices,
+            std::vector<int>&& t_islandsTextureBuffer,
+            std::vector<float>&& t_yBuffer,
+            std::unordered_map<int, int>&& t_gfxIndexMap
         );
 
-        DeepWaterRenderer(const DeepWaterRenderer& t_other) = delete;
-        DeepWaterRenderer(DeepWaterRenderer&& t_other) noexcept = delete;
-        DeepWaterRenderer& operator=(const DeepWaterRenderer& t_other) = delete;
-        DeepWaterRenderer& operator=(DeepWaterRenderer&& t_other) noexcept = delete;
+        IslandsRenderer(const IslandsRenderer& t_other) = delete;
+        IslandsRenderer(IslandsRenderer&& t_other) noexcept = delete;
+        IslandsRenderer& operator=(const IslandsRenderer& t_other) = delete;
+        IslandsRenderer& operator=(IslandsRenderer&& t_other) noexcept = delete;
 
-        ~DeepWaterRenderer();
+        ~IslandsRenderer();
 
         //-------------------------------------------------
         // Init
@@ -60,19 +61,19 @@ namespace sg::renderer
     private:
         static constexpr auto DRAW_COUNT{ 6 };
         static constexpr auto MIP_LEVEL_COUNT{ 1 };
-        static constexpr auto LAYER_COUNT{ 12 };
-        static constexpr auto END_GFX_INDEX{ 769 };
 
         std::shared_ptr<file::BshFile> m_bshFile;
-        std::vector<glm::mat4> m_deepWaterModelMatrices;
-        std::vector<int> m_deepWaterTextureBuffer;
+        std::vector<glm::mat4> m_islandsModelMatrices;
+        std::vector<int> m_islandsTextureBuffer;
+        std::vector<float> m_yBuffer;
+        std::unordered_map<int, int> m_gfxIndexMap;
 
         uint32_t m_vao{ 0 };
-        gl::Shader m_shader{ "res/shader/deepWater/Vertex.vert", "res/shader/deepWater/Fragment.frag" };
+        gl::Shader m_shader{ "res/shader/islands/Vertex.vert", "res/shader/islands/Fragment.frag" };
         uint32_t m_textureArrayId{ 0 };
 
-        int m_textureWidth{ 0 };
-        int m_textureHeight{ 0 };
+        int m_maxX{ -999 };
+        int m_maxY{ -999 };
 
         //-------------------------------------------------
         // Mesh
@@ -86,11 +87,13 @@ namespace sg::renderer
 
         void AddModelMatricesVbo();
         void AddTextureIndexVbo();
+        void AddYVbo();
 
         //-------------------------------------------------
         // Texture array
         //-------------------------------------------------
 
+        void SetMax();
         void CreateTextureArray();
     };
 }

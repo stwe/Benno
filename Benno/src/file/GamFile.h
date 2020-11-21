@@ -1,7 +1,7 @@
 #pragma once
 
+#include <unordered_map>
 #include "BinaryFile.h"
-#include "renderer/MeshRenderer.h"
 #include "renderer/Zoom.h"
 #include "chunk/TileGraphic.h"
 
@@ -13,6 +13,7 @@ namespace sg::camera
 namespace sg::renderer
 {
     class DeepWaterRenderer;
+    class IslandsRenderer;
 }
 
 namespace sg::chunk
@@ -80,10 +81,7 @@ namespace sg::file
         std::vector<std::unique_ptr<chunk::Island5>> m_island5List;
 
         std::unique_ptr<renderer::DeepWaterRenderer> m_deepWaterRenderer;
-        renderer::MeshRenderer m_meshRenderer;
-
-        std::vector<chunk::TileGraphic> m_islandsGraphicTiles;
-        std::vector<glm::mat4> m_islandsModelMatrices;
+        std::unique_ptr<renderer::IslandsRenderer> m_islandsRenderer;
 
         //-------------------------------------------------
         // Island5 Layer
@@ -104,6 +102,12 @@ namespace sg::file
 
         void InitIslandsArea();
         void CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const;
+        static void CreateIslandsTextureIndex(
+            const std::vector<chunk::TileGraphic>& t_graphicTiles,
+            std::vector<int>& t_islandsTextureBuffer,
+            std::vector<float>& t_yBuffer,
+            std::unordered_map<int, int>& t_gfxIndexMap
+        );
 
         //-------------------------------------------------
         // Helper

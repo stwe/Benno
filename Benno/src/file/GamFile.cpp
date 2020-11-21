@@ -1,3 +1,4 @@
+#include <unordered_set>
 #include <glm/vec2.hpp>
 #include "GamFile.h"
 #include "BshFile.h"
@@ -9,6 +10,7 @@
 #include "chunk/IslandHouse.h"
 #include "chunk/Chunk.h"
 #include "renderer/DeepWaterRenderer.h"
+#include "renderer/IslandsRenderer.h"
 #include "camera/OrthographicCamera.h"
 
 //-------------------------------------------------
@@ -50,15 +52,7 @@ const std::vector<std::unique_ptr<sg::chunk::Island5>>& sg::file::GamFile::GetIs
 void sg::file::GamFile::Render(const camera::OrthographicCamera& t_camera)
 {
     m_deepWaterRenderer->Render(t_camera);
-
-    // todo: temp code, just for testing, slow...very slow
-    auto i{ 0 };
-    for (const auto& tile : m_islandsGraphicTiles)
-    {
-        const auto& bshTexture{ m_bshFile->GetBshTexture(tile.gfxIndex) };
-        m_meshRenderer.Render(m_islandsModelMatrices[i], bshTexture.textureId, t_camera);
-        i++;
-    }
+    m_islandsRenderer->Render(t_camera);
 }
 
 //-------------------------------------------------
@@ -153,14 +147,32 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
 
 void sg::file::GamFile::InitIslandsArea()
 {
-    Log::SG_LOG_DEBUG("[GamFile::InitIslandsArea()] Create data for the Mesh Renderer.");
+    Log::SG_LOG_DEBUG("[GamFile::InitIslandsArea()] Create data for the Islands Renderer.");
 
-    CreateIslandsGraphicTiles(m_islandsGraphicTiles);
+    std::vector<chunk::TileGraphic> islandsGraphicTiles;
+    std::vector<glm::mat4> islandsModelMatrices;
+    std::vector<int> islandsTextureBuffer;
+    std::vector<float> yBuffer;
+    std::unordered_map<int, int> gfxIndexMap;
 
-    for (const auto& tile : m_islandsGraphicTiles)
+    CreateIslandsGraphicTiles(islandsGraphicTiles);
+
+    for (const auto& tile : islandsGraphicTiles)
     {
-        m_islandsModelMatrices.push_back(tile.GetModelMatrix());
+        islandsModelMatrices.push_back(tile.GetModelMatrix());
     }
+
+    CreateIslandsTextureIndex(islandsGraphicTiles, islandsTextureBuffer, yBuffer, gfxIndexMap);
+
+    m_islandsRenderer = std::make_unique<renderer::IslandsRenderer>(
+        m_bshFile,
+        std::move(islandsModelMatrices),
+        std::move(islandsTextureBuffer),
+        std::move(yBuffer),
+        std::move(gfxIndexMap)
+        );
+
+    m_islandsRenderer->Init(m_zoom);
 }
 
 void sg::file::GamFile::CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const
@@ -181,6 +193,39 @@ void sg::file::GamFile::CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic
     }
 }
 
+void sg::file::GamFile::CreateIslandsTextureIndex(
+    const std::vector<chunk::TileGraphic>& t_graphicTiles,
+    std::vector<int>& t_islandsTextureBuffer,
+    std::vector<float>& t_yBuffer,
+    std::unordered_map<int, int>& t_gfxIndexMap
+)
+{
+    t_islandsTextureBuffer.resize(t_graphicTiles.size());
+    t_yBuffer.resize(t_graphicTiles.size());
+
+    std::unordered_set<int> islandTexturesToLoad;
+    for (const auto& tile : t_graphicTiles)
+    {
+        islandTexturesToLoad.emplace(tile.gfxIndex);
+    }
+
+    auto zOffset{ 0 };
+    for (auto toLoad : islandTexturesToLoad)
+    {
+        t_gfxIndexMap.emplace(toLoad, zOffset);
+        zOffset++;
+    }
+
+    auto instance{ 0 };
+    for (const auto& tile : t_graphicTiles)
+    {
+        t_islandsTextureBuffer[instance] = t_gfxIndexMap.at(tile.gfxIndex);
+        t_yBuffer[instance] = tile.size.y;
+
+        instance++;
+    }
+}
+
 //-------------------------------------------------
 // Helper
 //-------------------------------------------------
@@ -192,11 +237,8 @@ void sg::file::GamFile::AddTileGraphicToList(const int t_x, const int t_y, std::
     const auto sx{ (t_x - t_y + GameLayer::WORLD_HEIGHT) * m_zoom.GetXRaster() };
     const auto sy{ (t_x + t_y) * m_zoom.GetYRaster() + 2 * m_zoom.GetYRaster() - t_tileGraphic.groundHeight / m_zoom.GetElevation() };
 
-    const auto position{ glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height) };
-    const auto size{ glm::vec2(bshTexture.width, bshTexture.height) };
-
-    t_tileGraphic.screenPosition = position;
-    t_tileGraphic.size = size;
+    t_tileGraphic.screenPosition = glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height);
+    t_tileGraphic.size = glm::vec2(bshTexture.width, bshTexture.height);
 
     t_graphicTiles.push_back(t_tileGraphic);
 }
