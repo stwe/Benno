@@ -1,6 +1,7 @@
 #include "Layer.h"
 #include "Game.h"
 #include "SgAssert.h"
+#include "Log.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.

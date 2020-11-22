@@ -26,19 +26,22 @@ The project works with Anno 1602:
 
 ## Build instructions
 
-On Linux, it's probably easiest to get all of the dependencies with `sudo apt install` and use the CMakeLists.txt files attached to this project. I suggest the following guide, which use **Conan** and **Premake5**.
-
 ### Getting Started
 
 First, [install](https://docs.conan.io/en/latest/installation.html) the Conan package manager locally. Then, adding the Bincrafters repository as a Conan Remote.
 
 ```bash
-conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+$ conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 ```
 
-My favor build configuration tool: Premake5. Premake5 can generate Makefiles and Visual Studio Solutions with a single description file for cross-platform projects. Download the [Premake5 repository](https://premake.github.io/download.html) to your preferred location.
+If you are using GCC compiler >= 5.1, Conan will set the `compiler.libcxx` to the old ABI for backwards compatibility. You can change this with the following commands:
 
-As this project relies on multiple 3rd-Party Libs, I created a `conanfile.txt` with all the requirements.
+```bash
+$ conan profile new default --detect  # Generates default profile detecting GCC and sets old ABI
+$ conan profile update settings.compiler.libcxx=libstdc++11 default  # Sets libcxx to C++11 ABI
+```
+
+As this project relies on multiple 3rd-Party Libs, I created a `conanfile_premake.txt` and a `conanfile_cmake.txt` with all the requirements.
 
 ```txt
 [requires]
@@ -53,22 +56,32 @@ nlohmann_json/3.9.1
 premake
 ```
 
+```txt
+
+# ...
+
+[generators]
+cmake
+```
+
 ### Windows
+
+My favor build configuration tool for Windows is Premake5. Premake5 can generate Makefiles and Visual Studio Solutions with a single description file for cross-platform projects. Download the [Premake5 repository](https://premake.github.io/download.html) to your preferred location.
 
 Complete the installation of requirements for the project running:
 
 ```bash
-conan install . -s build_type=Debug --build=force
+$ conan install conanfile_premake.txt -s build_type=Debug
 ```
 
 or
 
 ```bash
-conan install . -s build_type=Release --build=force
+$ conan install conanfile_premake.txt -s build_type=Release
 ```
 
 ```bash
-premake5 vs2019
+$ premake5 vs2019
 ```
 
 ### Linux
@@ -76,21 +89,20 @@ premake5 vs2019
 Complete the installation of requirements for the project running:
 
 ```bash
-conan install . -s build_type=Debug --build=sdl2
+$ conan install conanfile_cmake.txt -s build_type=Debug --build missing
 ```
 
 or
 
 ```bash
-conan install . -s build_type=Release --build=sdl2
+$ conan install conanfile_cmake.txt -s build_type=Release --build missing
 ```
 
 ```bash
-premake5 gmake
-```
-
-```bash
-make -j8
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
 ```
 
 ## License
