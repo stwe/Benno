@@ -1,5 +1,6 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <iostream>
 #include "HousesJsonFile.h"
 #include "Log.h"
 #include "SgException.h"
@@ -63,7 +64,7 @@ void sg::data::HousesJsonFile::ReadFileData(const std::string& t_filePath)
 
         for (auto& var : vars)
         {
-            auto name{ var["name"] };
+            auto name = var["name"];
             if (name == "Id")
             {
                 building.id = var["valueInt"];
@@ -83,7 +84,7 @@ void sg::data::HousesJsonFile::ReadFileData(const std::string& t_filePath)
             }
             if (name == "Size")
             {
-                auto values{ var["valueArray"]["value"] };
+                auto values = var["valueArray"]["value"];
                 building.width = values[0]["valueInt"];
                 building.height = values[1]["valueInt"];
             }
