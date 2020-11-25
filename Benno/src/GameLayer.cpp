@@ -25,7 +25,7 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 void sg::GameLayer::OnCreate()
 {
     m_camera = std::make_unique<camera::OrthographicCamera>(this);
-    m_camera->SetPosition(glm::vec2(5600.0f, 1500.0f));
+    m_camera->SetPosition(glm::vec2(40.0f, 2800.0f));
     m_camera->SetCameraVelocity(1000.0f);
 
     m_housesJsonFile = std::make_shared<data::HousesJsonFile>("res/data/houses.json");

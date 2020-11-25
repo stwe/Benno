@@ -9,6 +9,7 @@
 #include "chunk/Island5.h"
 #include "chunk/IslandHouse.h"
 #include "chunk/Chunk.h"
+#include "chunk/TileUtil.h"
 #include "renderer/DeepWaterRenderer.h"
 #include "renderer/IslandsRenderer.h"
 #include "camera/OrthographicCamera.h"
@@ -117,7 +118,7 @@ void sg::file::GamFile::InitDeepWaterArea()
     for (const auto& tile : deepWaterGraphicTiles)
     {
         deepWaterModelMatrices.push_back(tile.GetModelMatrix());
-        deepWaterTextureBuffer.push_back(tile.gfxIndex - renderer::DeepWaterRenderer::START_GFX_INDEX);
+        deepWaterTextureBuffer.push_back(tile.tileGfxInfo.gfxIndex - renderer::DeepWaterRenderer::START_GFX_INDEX);
     }
 
     m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(m_bshFile, std::move(deepWaterModelMatrices), std::move(deepWaterTextureBuffer));
@@ -126,16 +127,41 @@ void sg::file::GamFile::InitDeepWaterArea()
 
 void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const
 {
+    constexpr auto waterId{ 1201 };
+
     for (auto y{ 0 }; y < GameLayer::WORLD_HEIGHT; ++y)
     {
         for (auto x{ 0 }; x < GameLayer::WORLD_WIDTH; ++x)
         {
             if (!IsIslandOnPosition(x, y, m_island5List))
             {
-                chunk::TileGraphic deepWaterTileGraphic{ m_housesJsonFile->GetBuildings().at(1201).gfx, 0 };
-                deepWaterTileGraphic.gfxIndex += (y + x * 3) % 12;
+                auto waterGfx{ m_housesJsonFile->GetBuildings().at(waterId).gfx };
+                waterGfx += (y + x * 3) % 12;
 
-                AddTileGraphicToList(x, y, t_graphicTiles, deepWaterTileGraphic);
+                const auto& waterBshTexture{ m_bshFile->GetBshTexture(waterGfx) };
+
+                chunk::TileGraphic deepWaterTileGraphic;
+                deepWaterTileGraphic.tileGfxInfo.gfxIndex = waterGfx;
+                deepWaterTileGraphic.mapPosition.x = x;
+                deepWaterTileGraphic.mapPosition.y = y;
+
+                auto screenPosition{ chunk::TileUtil::MapToScreen(x, y, m_zoom.GetXRaster(), m_zoom.GetYRaster()) };
+
+                const auto adjustHeight{ chunk::TileUtil::AdjustHeight(
+                    m_zoom.GetYRaster(),
+                    static_cast<int>(chunk::TileHeight::SEA_LEVEL),
+                    m_zoom.GetElevation())
+                };
+
+                screenPosition.y += adjustHeight;
+
+                screenPosition.x -= waterBshTexture.width;
+                screenPosition.y -= waterBshTexture.height;
+
+                deepWaterTileGraphic.screenPosition = glm::vec2(screenPosition.x, screenPosition.y);
+                deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);
+
+                t_graphicTiles.push_back(deepWaterTileGraphic);
             }
         }
     }
@@ -185,9 +211,31 @@ void sg::file::GamFile::CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic
             if (island)
             {
                 const auto tile{ island->GetTileFromLayer(x - island->GetIsland5Data().posx, y - island->GetIsland5Data().posy) };
-                auto islandTileGraphic{ island->GetGraphicForTile(tile) };
+                const auto tileGfxInfo{ island->GetTileGfxInfo(tile) };
+                const auto& bshTexture{ m_bshFile->GetBshTexture(tileGfxInfo.gfxIndex) };
 
-                AddTileGraphicToList(x, y, t_graphicTiles, islandTileGraphic);
+                chunk::TileGraphic tileGraphic;
+                tileGraphic.tileGfxInfo = tileGfxInfo;
+                tileGraphic.mapPosition.x = x;
+                tileGraphic.mapPosition.y = y;
+
+                auto screenPosition{ chunk::TileUtil::MapToScreen(x, y, m_zoom.GetXRaster(), m_zoom.GetYRaster()) };
+
+                const auto adjustHeight{ chunk::TileUtil::AdjustHeight(
+                    m_zoom.GetYRaster(),
+                    static_cast<int>(tileGraphic.tileGfxInfo.tileHeight),
+                    m_zoom.GetElevation())
+                };
+
+                screenPosition.y += adjustHeight;
+
+                screenPosition.x -= bshTexture.width;
+                screenPosition.y -= bshTexture.height;
+
+                tileGraphic.screenPosition = glm::vec2(screenPosition.x, screenPosition.y);
+                tileGraphic.size = glm::vec2(bshTexture.width, bshTexture.height);
+
+                t_graphicTiles.push_back(tileGraphic);
             }
         }
     }
@@ -206,7 +254,7 @@ void sg::file::GamFile::CreateIslandsTextureIndex(
     std::unordered_set<int> islandTexturesToLoad;
     for (const auto& tile : t_graphicTiles)
     {
-        islandTexturesToLoad.emplace(tile.gfxIndex);
+        islandTexturesToLoad.emplace(tile.tileGfxInfo.gfxIndex);
     }
 
     auto zOffset{ 0 };
@@ -219,7 +267,7 @@ void sg::file::GamFile::CreateIslandsTextureIndex(
     auto instance{ 0 };
     for (const auto& tile : t_graphicTiles)
     {
-        t_islandsTextureBuffer[instance] = t_gfxIndexMap.at(tile.gfxIndex);
+        t_islandsTextureBuffer[instance] = t_gfxIndexMap.at(tile.tileGfxInfo.gfxIndex);
         t_yBuffer[instance] = tile.size.y;
 
         instance++;
@@ -229,19 +277,6 @@ void sg::file::GamFile::CreateIslandsTextureIndex(
 //-------------------------------------------------
 // Helper
 //-------------------------------------------------
-
-void sg::file::GamFile::AddTileGraphicToList(const int t_x, const int t_y, std::vector<chunk::TileGraphic>& t_graphicTiles, chunk::TileGraphic& t_tileGraphic) const
-{
-    const auto& bshTexture{ m_bshFile->GetBshTexture(t_tileGraphic.gfxIndex) };
-
-    const auto sx{ (t_x - t_y + GameLayer::WORLD_HEIGHT) * m_zoom.GetXRaster() };
-    const auto sy{ (t_x + t_y) * m_zoom.GetYRaster() + 2 * m_zoom.GetYRaster() - t_tileGraphic.groundHeight / m_zoom.GetElevation() };
-
-    t_tileGraphic.screenPosition = glm::vec2(sx - static_cast<float>(bshTexture.width) / 2.0f, sy - bshTexture.height);
-    t_tileGraphic.size = glm::vec2(bshTexture.width, bshTexture.height);
-
-    t_graphicTiles.push_back(t_tileGraphic);
-}
 
 sg::chunk::Island5* sg::file::GamFile::IsIslandOnPosition(const int t_x, const int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List)
 {

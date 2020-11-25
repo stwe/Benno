@@ -7,24 +7,26 @@
 
 namespace sg::chunk
 {
-    struct TileGraphic
+    enum class TileHeight
+    {
+        SEA_LEVEL = 0,
+        CLIFF = 20,
+    };
+
+    struct TileGfxInfo
     {
         int gfxIndex{ 0 };
-        int groundHeight{ 0 };
+        TileHeight tileHeight{ TileHeight::SEA_LEVEL };
+    };
 
+    struct TileGraphic
+    {
+        TileGfxInfo tileGfxInfo;
+
+        glm::ivec2 mapPosition{ 0 };
         glm::vec2 screenPosition{ 0.0f };
+
         glm::vec2 size{ 1.0f };
-
-        //-------------------------------------------------
-        // Ctors. / Dtor.
-        //-------------------------------------------------
-
-        TileGraphic() = default;
-
-        TileGraphic(const int t_gfxIndex, const int t_groundHeight)
-            : gfxIndex{ t_gfxIndex }
-            , groundHeight{ t_groundHeight }
-        {}
 
         //-------------------------------------------------
         // Getter

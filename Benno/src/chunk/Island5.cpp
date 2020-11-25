@@ -58,18 +58,8 @@ sg::chunk::Tile sg::chunk::Island5::GetTileFromLayer(const int t_x, const int t_
     return tile;
 }
 
-sg::chunk::TileGraphic sg::chunk::Island5::GetGraphicForTile(const Tile t_tile) const
+sg::chunk::TileGfxInfo sg::chunk::Island5::GetTileGfxInfo(const Tile t_tile) const
 {
-    TileGraphic targetField;
-
-    if (t_tile.graphicId == IslandHouse::NO_GRAPHIC)
-    {
-        targetField.gfxIndex = -1;
-        targetField.groundHeight = 0;
-
-        return targetField;
-    }
-
     const auto& building{ m_housesJsonFile->GetBuildings().at(t_tile.graphicId) };
 
     auto index{ building.gfx };
@@ -98,20 +88,14 @@ sg::chunk::TileGraphic sg::chunk::Island5::GetGraphicForTile(const Tile t_tile) 
             break;
         case 3: index += t_tile.xPosOnIsland * building.width + (building.width - t_tile.yPosOnIsland - 1);
             break;
-        default: Log::SG_LOG_WARN("Unknow rotation.");
+        default: Log::SG_LOG_WARN("[Island5::GetTileGfxInfo()] Unknow rotation.");
     }
 
     index += building.width * building.height * directions * (t_tile.animationCount % aniSteps);
 
-    targetField.gfxIndex = index;
-    targetField.groundHeight = 0;
+    SG_ASSERT(building.posoffs == 0 || building.posoffs == 20, "[Island5::GetTileGfxInfo()] Invalid tile height.");
 
-    if (building.posoffs == 20)
-    {
-        targetField.groundHeight = building.posoffs;
-    }
-
-    return targetField;
+    return { index, building.posoffs == 0 ? TileHeight::SEA_LEVEL : TileHeight::CLIFF };
 }
 
 //-------------------------------------------------

@@ -72,7 +72,7 @@ namespace sg::chunk
 
         [[nodiscard]] const Island5Data& GetIsland5Data() const noexcept;
         [[nodiscard]] Tile GetTileFromLayer(int t_x, int t_y) const;
-        [[nodiscard]] TileGraphic GetGraphicForTile(Tile t_tile) const;
+        [[nodiscard]] TileGfxInfo GetTileGfxInfo(Tile t_tile) const;
 
         //-------------------------------------------------
         // Setter
