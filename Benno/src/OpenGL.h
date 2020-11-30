@@ -53,6 +53,9 @@ namespace sg
         static void EnableAlphaBlending();
         static void DisableBlending();
 
+        static void EnableWireframeMode();
+        static void DisableWireframeMode();
+
     protected:
 
     private:

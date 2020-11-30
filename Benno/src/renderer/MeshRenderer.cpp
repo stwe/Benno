@@ -13,9 +13,12 @@ sg::renderer::MeshRenderer::MeshRenderer()
 {
     Init();
 
-    m_shader.AddUniform("model");
-    m_shader.AddUniform("viewProjection");
-    m_shader.AddUniform("diffuseMap");
+    m_meshShader.AddUniform("model");
+    m_meshShader.AddUniform("viewProjection");
+    m_meshShader.AddUniform("diffuseMap");
+
+    m_aabbShader.AddUniform("model");
+    m_aabbShader.AddUniform("viewProjection");
 }
 
 //-------------------------------------------------
@@ -30,20 +33,40 @@ void sg::renderer::MeshRenderer::Render(
 {
     OpenGL::EnableAlphaBlending();
 
-    m_shader.Bind();
+    m_meshShader.Bind();
     glBindVertexArray(m_vao);
 
     gl::Texture::BindForReading(t_bshTextureId, GL_TEXTURE0);
 
-    m_shader.SetUniform("model", t_modelMatrix);
-    m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
-    m_shader.SetUniform("diffuseMap", 0);
+    m_meshShader.SetUniform("model", t_modelMatrix);
+    m_meshShader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
+    m_meshShader.SetUniform("diffuseMap", 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glBindVertexArray(0);
     gl::Shader::Unbind();
 
+    OpenGL::DisableBlending();
+}
+
+void sg::renderer::MeshRenderer::Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera)
+{
+    OpenGL::EnableAlphaBlending();
+    OpenGL::EnableWireframeMode();
+
+    m_aabbShader.Bind();
+    glBindVertexArray(m_vao);
+
+    m_aabbShader.SetUniform("model", t_modelMatrix);
+    m_aabbShader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glBindVertexArray(0);
+    gl::Shader::Unbind();
+
+    OpenGL::DisableWireframeMode();
     OpenGL::DisableBlending();
 }
 

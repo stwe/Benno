@@ -25,7 +25,7 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 void sg::GameLayer::OnCreate()
 {
     m_camera = std::make_unique<camera::OrthographicCamera>(this);
-    m_camera->SetPosition(glm::vec2(40.0f, 2800.0f));
+    m_camera->SetPosition(glm::vec2(1088.0f, 1840.0f));
     m_camera->SetCameraVelocity(1000.0f);
 
     m_housesJsonFile = std::make_shared<data::HousesJsonFile>("res/data/houses.json");
@@ -37,7 +37,12 @@ void sg::GameLayer::OnCreate()
     m_bshFile = std::make_shared<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
-    m_gamFile = std::make_unique<file::GamFile>("res/savegame/game01.gam", m_bshFile, m_housesJsonFile, m_parentGame->gameOptions.currentZoom);
+    m_gamFile = std::make_unique<file::GamFile>(
+        "res/savegame/game01.gam",
+        m_bshFile,
+        m_housesJsonFile,
+        m_parentGame->gameOptions.currentZoom
+        );
     m_gamFile->ReadContentFromChunkData();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
@@ -56,7 +61,7 @@ void sg::GameLayer::OnRender()
     OpenGL::Clear();
     OpenGL::EnableAlphaBlending();
 
-    m_gamFile->Render(*m_camera);
+    m_gamFile->Render(*m_camera, m_info, m_renderIslandAabbs);
 
     OpenGL::DisableBlending();
 }
@@ -69,8 +74,20 @@ void sg::GameLayer::OnGuiRender()
     ImGui::Spacing();
     ImGui::Text("Camera x: %f", m_camera->GetPosition().x);
     ImGui::Text("Camera y: %f", m_camera->GetPosition().y);
-    ImGui::Spacing();
+
+    // todo: why is a grid created?
+    //const auto v{ WORLD_WIDTH * m_parentGame->gameOptions.currentZoom.GetXRaster() };
+    //ImGui::SliderFloat2("Camera", reinterpret_cast<float*>(&m_camera->GetPosition()), -v, v);
+
+    ImGui::Separator();
+
     ImGui::Text("Current zoom: %s", renderer::Zoom::ZoomToString(m_parentGame->gameOptions.currentZoom.GetZoomId()).c_str());
+
+    ImGui::Separator();
+
+    ImGui::Text("Render Islands: %llu/%llu", m_gamFile->GetIsland5List().size() - m_info, m_gamFile->GetIsland5List().size());
+    ImGui::SameLine(200);
+    ImGui::Checkbox("Toggle render Aabbs", &m_renderIslandAabbs);
 
     ImGui::Separator();
 

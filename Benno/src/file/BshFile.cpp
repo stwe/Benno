@@ -48,6 +48,16 @@ const sg::file::BshTexture& sg::file::BshFile::GetBshTexture(const int t_index) 
     return *m_bshTextures[t_index];
 }
 
+int sg::file::BshFile::GetMaxX() const noexcept
+{
+    return m_maxX;
+}
+
+int sg::file::BshFile::GetMaxY() const noexcept
+{
+    return m_maxY;
+}
+
 //-------------------------------------------------
 // BinaryFile Interface
 //-------------------------------------------------
@@ -76,6 +86,7 @@ void sg::file::BshFile::ReadContentFromChunkData()
 
     DecodeTextures();
     CreateGLTextures();
+    SetMaxValues();
 
     Log::SG_LOG_DEBUG("[BshFile::ReadContentFromChunkData()] BSH data read successfully.");
 }
@@ -175,6 +186,22 @@ void sg::file::BshFile::CreateGLTextures()
         );
 
         gl::Texture::Unbind();
+    }
+}
+
+void sg::file::BshFile::SetMaxValues()
+{
+    for (const auto& texture : m_bshTextures)
+    {
+        if (texture->width > m_maxX)
+        {
+            m_maxX = texture->width;
+        }
+
+        if (texture->height > m_maxY)
+        {
+            m_maxY = texture->height;
+        }
     }
 }
 

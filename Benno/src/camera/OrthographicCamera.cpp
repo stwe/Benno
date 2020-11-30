@@ -31,10 +31,10 @@ sg::camera::OrthographicCamera::~OrthographicCamera()
 }
 
 //-------------------------------------------------
-// Getter / read-only
+// Getter
 //-------------------------------------------------
 
-glm::vec2 sg::camera::OrthographicCamera::GetPosition() const
+glm::vec2& sg::camera::OrthographicCamera::GetPosition()
 {
     return m_position;
 }
@@ -91,6 +91,25 @@ void sg::camera::OrthographicCamera::OnUpdate(const float t_dt)
     {
         ProcessKeyboard(Direction::RIGHT, t_dt);
     }
+}
+
+//-------------------------------------------------
+// Physics
+//-------------------------------------------------
+
+sg::physics::Aabb sg::camera::OrthographicCamera::GetCurrentAabb() const noexcept
+{
+    return {
+        m_position,
+        glm::vec2(
+            m_position.x + static_cast<float>(m_parentLayer->GetParentGame()->projectionOptions.width),
+            m_position.y + static_cast<float>(m_parentLayer->GetParentGame()->projectionOptions.height)
+        ),
+        glm::vec2(
+            static_cast<float>(m_parentLayer->GetParentGame()->projectionOptions.width),
+            static_cast<float>(m_parentLayer->GetParentGame()->projectionOptions.height)
+        )
+    };
 }
 
 //-------------------------------------------------

@@ -66,5 +66,8 @@ namespace sg
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::shared_ptr<file::BshFile> m_bshFile;
         std::unique_ptr<file::GamFile> m_gamFile;
+
+        int m_info{ 0 };
+        bool m_renderIslandAabbs{ true };
     };
 }

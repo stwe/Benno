@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
+#include <physics/Aabb.h>
 
 namespace sg
 {
@@ -32,10 +33,10 @@ namespace sg::camera
         ~OrthographicCamera();
 
         //-------------------------------------------------
-        // Getter / read-only
+        // Getter
         //-------------------------------------------------
 
-        [[nodiscard]] glm::vec2 GetPosition() const;
+        glm::vec2& GetPosition();
         [[nodiscard]] glm::mat4 GetViewMatrix() const;
         [[nodiscard]] glm::mat4 GetViewProjectionMatrix() const;
 
@@ -51,6 +52,12 @@ namespace sg::camera
         //-------------------------------------------------
 
         void OnUpdate(float t_dt);
+
+        //-------------------------------------------------
+        // Physics
+        //-------------------------------------------------
+
+        [[nodiscard]] physics::Aabb GetCurrentAabb() const noexcept;
 
     protected:
 

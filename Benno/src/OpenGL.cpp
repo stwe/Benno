@@ -82,3 +82,13 @@ void sg::OpenGL::DisableBlending()
 {
     glDisable(GL_BLEND);
 }
+
+void sg::OpenGL::EnableWireframeMode()
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+void sg::OpenGL::DisableWireframeMode()
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}

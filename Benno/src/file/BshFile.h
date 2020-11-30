@@ -101,6 +101,8 @@ namespace sg::file
 
         [[nodiscard]] const std::vector<std::unique_ptr<BshTexture>>& GetBshTextures() const noexcept;
         [[nodiscard]] const BshTexture& GetBshTexture(int t_index) const;
+        [[nodiscard]] int GetMaxX() const noexcept;
+        [[nodiscard]] int GetMaxY() const noexcept;
 
         //-------------------------------------------------
         // BinaryFile Interface
@@ -122,6 +124,9 @@ namespace sg::file
         std::vector<uint32_t> m_offsets;
         std::vector<std::unique_ptr<BshTexture>> m_bshTextures;
 
+        int m_maxX{ -999 };
+        int m_maxY{ -999 };
+
         //-------------------------------------------------
         // Helper
         //-------------------------------------------------
@@ -129,6 +134,7 @@ namespace sg::file
         void DecodeTextures();
         void DecodeTexture(uint32_t t_offset);
         void CreateGLTextures();
+        void SetMaxValues();
 
         //-------------------------------------------------
         // CleanUp

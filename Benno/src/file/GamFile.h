@@ -1,6 +1,5 @@
 #pragma once
 
-#include <unordered_map>
 #include "BinaryFile.h"
 #include "renderer/Zoom.h"
 #include "chunk/TileGraphic.h"
@@ -13,7 +12,8 @@ namespace sg::camera
 namespace sg::renderer
 {
     class DeepWaterRenderer;
-    class IslandsRenderer;
+    class IslandModel;
+    class MeshRenderer;
 }
 
 namespace sg::chunk
@@ -63,7 +63,11 @@ namespace sg::file
         // Render
         //-------------------------------------------------
 
-        void Render(const camera::OrthographicCamera& t_camera);
+        void Render(
+            const camera::OrthographicCamera& t_camera,
+            int& t_info,
+            bool t_renderIslandAabbs = false
+        );
 
         //-------------------------------------------------
         // BinaryFile Interface
@@ -81,7 +85,9 @@ namespace sg::file
         std::vector<std::unique_ptr<chunk::Island5>> m_island5List;
 
         std::unique_ptr<renderer::DeepWaterRenderer> m_deepWaterRenderer;
-        std::unique_ptr<renderer::IslandsRenderer> m_islandsRenderer;
+        std::unique_ptr<renderer::MeshRenderer> m_meshRenderer;
+
+        std::vector<std::unique_ptr<renderer::IslandModel>> m_islandModels;
 
         //-------------------------------------------------
         // Island5 Layer
@@ -101,19 +107,11 @@ namespace sg::file
         //-------------------------------------------------
 
         void InitIslandsArea();
-        void CreateIslandsGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const;
-        static void CreateIslandsTextureIndex(
-            const std::vector<chunk::TileGraphic>& t_graphicTiles,
-            std::vector<int>& t_islandsTextureBuffer,
-            std::vector<float>& t_yBuffer,
-            std::unordered_map<int, int>& t_gfxIndexMap
-        );
 
         //-------------------------------------------------
         // Helper
         //-------------------------------------------------
 
-        void AddTileGraphicToList(int t_x, int t_y, std::vector<chunk::TileGraphic>& t_graphicTiles, chunk::TileGraphic& t_tileGraphic) const;
         static chunk::Island5* IsIslandOnPosition(int t_x, int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List);
     };
 }
