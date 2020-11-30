@@ -85,7 +85,7 @@ void sg::GameLayer::OnGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Render Islands: %llu/%llu", m_gamFile->GetIsland5List().size() - m_info, m_gamFile->GetIsland5List().size());
+    ImGui::Text("Render Islands: %d/%d", static_cast<int>(m_gamFile->GetIsland5List().size()) - m_info, static_cast<int>(m_gamFile->GetIsland5List().size()));
     ImGui::SameLine(200);
     ImGui::Checkbox("Toggle render Aabbs", &m_renderIslandAabbs);
 
