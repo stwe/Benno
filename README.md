@@ -1,7 +1,7 @@
 # Benno
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e702220c4290499091156333bcecf168)](https://www.codacy.com/gh/stwe/Benno/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=stwe/Benno&amp;utm_campaign=Badge_Grade)
-
+[![Build Status](https://travis-ci.org/stwe/Benno.svg?branch=master)](https://travis-ci.org/stwe/Benno)
 
 <img src="https://github.com/stwe/Benno/blob/master/Benno/res/devLog/20112020.png" width="250" height="200" />
 
