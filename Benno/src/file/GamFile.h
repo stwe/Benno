@@ -64,7 +64,7 @@ namespace sg::file
         //-------------------------------------------------
 
         void Render(
-            const camera::OrthographicCamera& t_camera,
+            camera::OrthographicCamera& t_camera,
             int& t_info,
             bool t_renderIslandAabbs = false
         );

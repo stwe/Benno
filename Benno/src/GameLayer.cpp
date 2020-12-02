@@ -100,9 +100,15 @@ void sg::GameLayer::OnGuiRender()
     for (const auto& island5 : m_gamFile->GetIsland5List())
     {
         auto label{ std::string("Island ") + std::to_string(island5->GetIsland5Data().islandNumber) };
-        if (ImGui::Selectable(label.c_str(), selectedIslandNumber == island5->GetIsland5Data().islandNumber))
+
+        if (island5->selected)
         {
             selectedIslandNumber = island5->GetIsland5Data().islandNumber;
+            selectedIsland5 = island5.get();
+        }
+
+        if (ImGui::Selectable(label.c_str(), selectedIslandNumber == island5->GetIsland5Data().islandNumber))
+        {
             selectedIsland5 = island5.get();
         }
     }

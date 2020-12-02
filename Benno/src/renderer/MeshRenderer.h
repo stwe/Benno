@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include "gl/Shader.h"
 
 namespace sg::camera
@@ -41,7 +42,7 @@ namespace sg::renderer
             const camera::OrthographicCamera& t_camera
         );
 
-        void Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera);
+        void Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera, const glm::vec3& t_color);
 
     protected:
 

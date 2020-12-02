@@ -19,6 +19,7 @@ sg::renderer::MeshRenderer::MeshRenderer()
 
     m_aabbShader.AddUniform("model");
     m_aabbShader.AddUniform("viewProjection");
+    m_aabbShader.AddUniform("color");
 }
 
 //-------------------------------------------------
@@ -50,7 +51,7 @@ void sg::renderer::MeshRenderer::Render(
     OpenGL::DisableBlending();
 }
 
-void sg::renderer::MeshRenderer::Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera)
+void sg::renderer::MeshRenderer::Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera, const glm::vec3& t_color)
 {
     OpenGL::EnableAlphaBlending();
     OpenGL::EnableWireframeMode();
@@ -60,6 +61,7 @@ void sg::renderer::MeshRenderer::Render(glm::mat4& t_modelMatrix, const camera::
 
     m_aabbShader.SetUniform("model", t_modelMatrix);
     m_aabbShader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
+    m_aabbShader.SetUniform("color", t_color);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 

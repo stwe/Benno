@@ -4,6 +4,7 @@
 #include "BshFile.h"
 #include "BshTexture.h"
 #include "GameLayer.h"
+#include "Input.h"
 #include "Log.h"
 #include "data/HousesJsonFile.h"
 #include "chunk/Island5.h"
@@ -15,6 +16,7 @@
 #include "renderer/MeshRenderer.h"
 #include "camera/OrthographicCamera.h"
 #include "physics/Aabb.h"
+#include "vendor/imgui/imgui.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -53,7 +55,7 @@ const std::vector<std::unique_ptr<sg::chunk::Island5>>& sg::file::GamFile::GetIs
 //-------------------------------------------------
 
 void sg::file::GamFile::Render(
-    const camera::OrthographicCamera& t_camera,
+    camera::OrthographicCamera& t_camera,
     int& t_info,
     const bool t_renderIslandAabbs
 )
@@ -63,8 +65,26 @@ void sg::file::GamFile::Render(
     t_info = 0;
     for (const auto& islandModel : m_islandModels)
     {
-        if (physics::Aabb::Intersect(t_camera.GetCurrentAabb(), islandModel->GetAabb()))
+        auto intersect{ false };
+        if (physics::Aabb::AabbVsAabb(t_camera.GetCurrentAabb(), islandModel->GetAabb()))
         {
+            if (!ImGui::GetIO().WantCaptureMouse)
+            {
+                const auto mx{ Input::GetInstance().GetMousePosition().x };
+                const auto my{ Input::GetInstance().GetMousePosition().y };
+
+                if (physics::Aabb::PointVsAabb(glm::vec2(mx + t_camera.GetPosition().x, my + t_camera.GetPosition().y), islandModel->GetAabb()))
+                {
+                    for (const auto& island5 : m_island5List)
+                    {
+                        island5->selected = false;
+                    }
+
+                    intersect = true;
+                    islandModel->GetParentIsland()->selected = true;
+                }
+            }
+
             islandModel->Render(t_camera);
         }
         else
@@ -75,7 +95,14 @@ void sg::file::GamFile::Render(
         if (t_renderIslandAabbs)
         {
             auto aabbModelMatrix{ islandModel->GetAabb().GetModelMatrix() };
-            m_meshRenderer->Render(aabbModelMatrix, t_camera);
+            if (intersect)
+            {
+                m_meshRenderer->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 1.0f, 0.0f));
+            }
+            else
+            {
+                m_meshRenderer->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 0.0f, 0.0f));
+            }
         }
     }
 }

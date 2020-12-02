@@ -32,6 +32,7 @@ before_install:
   - sudo apt install libxcb-xfixes0-dev
   - sudo apt install libxcb-xinerama0-dev
   - sudo apt install libglu1-mesa-dev
+  - sudo apt install libxcp-util-dev
   - sudo apt install python3
   - sudo apt install python3-pip
   - sudo apt install python3-setuptools

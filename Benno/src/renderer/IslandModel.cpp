@@ -207,8 +207,7 @@ void sg::renderer::IslandModel::CreateAabb()
 
     m_aabb = {
         islandScreenPosition,
-        glm::vec2(islandScreenPosition.x + islandScreenSize.x, islandScreenPosition.y + islandScreenSize.y),
-       glm::vec2(islandScreenSize.x, islandScreenSize.y)
+        glm::vec2(islandScreenSize.x, islandScreenSize.y)
     };
 }
 
