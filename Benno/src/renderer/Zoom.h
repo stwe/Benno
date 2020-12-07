@@ -56,6 +56,12 @@ namespace sg::renderer
         [[nodiscard]] int GetDefaultTileWidth() const { return m_defaultTileWidth; }
         [[nodiscard]] int GetDefaultTileHeight() const { return m_defaultTileHeight; }
 
+        [[nodiscard]] int GetTileWidth() const { return m_defaultTileWidth; }
+        [[nodiscard]] int GetTileHeight() const
+        {
+            return m_defaultTileHeight == 31 ? m_defaultTileHeight + 1 : m_defaultTileHeight;
+        }
+
     protected:
 
     private:

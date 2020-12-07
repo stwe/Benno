@@ -109,11 +109,11 @@ void sg::file::GamFile::Render(
     */
 }
 
-void sg::file::GamFile::Update(const glm::ivec2& t_mapPosition)
+void sg::file::GamFile::Update(const int t_mapX, const int t_mapY)
 {
     if (Input::GetInstance().IsKeyDown(SDL_BUTTON_LEFT))
     {
-        m_deepWaterRenderer->UpdateIntensity(t_mapPosition.x, t_mapPosition.y, glm::vec3(1.0f, 1.0f, 1.0f));
+        m_deepWaterRenderer->UpdateIntensity(t_mapX, t_mapY, glm::vec3(1.0f, 1.0f, 1.0f));
     }
 }
 
@@ -228,8 +228,7 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
                 //screenPosition.y -= waterBshTexture.height;
 
                 deepWaterTileGraphic.screenPosition = glm::vec2(screenPosition.x, screenPosition.y);
-                //deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);
-                deepWaterTileGraphic.size = glm::vec2(64.0f, 32.0f);
+                deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);
 
                 t_graphicTiles.push_back(deepWaterTileGraphic);
             }

@@ -59,7 +59,7 @@ void sg::GameLayer::OnDestruct()
 
 void sg::GameLayer::OnUpdate()
 {
-    m_gamFile->Update(m_mapPosition);
+    m_gamFile->Update(static_cast<int>(m_mapPosition.x), static_cast<int>(m_mapPosition.y));
 }
 
 void sg::GameLayer::OnRender()
@@ -89,14 +89,12 @@ void sg::GameLayer::OnGuiRender()
     m_mapPosition = { chunk::TileUtil::ScreenToMap(
         mx,
         my,
-        m_parentGame->gameOptions.currentZoom.GetDefaultTileWidth(),
-        m_parentGame->gameOptions.currentZoom.GetDefaultTileHeight())
+        m_parentGame->gameOptions.currentZoom.GetTileWidth(),
+        m_parentGame->gameOptions.currentZoom.GetTileHeight())
     };
 
-    ImGui::Text("Mouse rel x: %.1f", mx);
-    ImGui::Text("Mouse rel y: %.1f", my);
-    ImGui::Text("Map x: %.1f", m_mapPosition.x);
-    ImGui::Text("Map y: %.1f", m_mapPosition.y);
+    ImGui::Text("Map x: %d", static_cast<int>(m_mapPosition.x));
+    ImGui::Text("Map y: %d", static_cast<int>(m_mapPosition.y));
 
 
     /*

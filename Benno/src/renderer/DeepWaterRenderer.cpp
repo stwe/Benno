@@ -210,7 +210,7 @@ void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
 
     // set layout
     glEnableVertexAttribArray(5);
-    glVertexAttribIPointer(5, 4, GL_INT, 4, nullptr);
+    glVertexAttribIPointer(5, 1, GL_INT, 4, nullptr);
 
     glVertexAttribDivisor(5, 1);
 
@@ -237,7 +237,7 @@ void sg::renderer::DeepWaterRenderer::AddIntensityVbo()
 
     // set layout
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(glm::vec3), nullptr);
+    glVertexAttribPointer(6, 3, GL_FLOAT, false, sizeof(glm::vec3), nullptr);
 
     glVertexAttribDivisor(6, 1);
 
