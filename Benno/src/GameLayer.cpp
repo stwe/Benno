@@ -1,5 +1,6 @@
 #include "GameLayer.h"
 #include "Game.h"
+#include "Input.h"
 #include "OpenGL.h"
 #include "camera/OrthographicCamera.h"
 #include "vendor/imgui/imgui.h"
@@ -8,6 +9,8 @@
 #include "file/BshFile.h"
 #include "file/GamFile.h"
 #include "chunk/Island5.h"
+#include "chunk/TileUtil.h"
+#include "renderer/MeshRenderer.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -25,7 +28,7 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 void sg::GameLayer::OnCreate()
 {
     m_camera = std::make_unique<camera::OrthographicCamera>(this);
-    m_camera->SetPosition(glm::vec2(1088.0f, 1840.0f));
+    m_camera->SetPosition(glm::vec2(0.0f, 0.0f));
     m_camera->SetCameraVelocity(1000.0f);
 
     m_housesJsonFile = std::make_shared<data::HousesJsonFile>("res/data/houses.json");
@@ -45,6 +48,8 @@ void sg::GameLayer::OnCreate()
         );
     m_gamFile->ReadContentFromChunkData();
 
+    m_meshRenderer = std::make_unique<renderer::MeshRenderer>();
+
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }
 
@@ -54,16 +59,14 @@ void sg::GameLayer::OnDestruct()
 
 void sg::GameLayer::OnUpdate()
 {
+    m_gamFile->Update(m_mapPosition);
 }
 
 void sg::GameLayer::OnRender()
 {
     OpenGL::Clear();
-    OpenGL::EnableAlphaBlending();
 
     m_gamFile->Render(*m_camera, m_info, m_renderIslandAabbs);
-
-    OpenGL::DisableBlending();
 }
 
 void sg::GameLayer::OnGuiRender()
@@ -72,12 +75,60 @@ void sg::GameLayer::OnGuiRender()
 
     ImGui::Text("Press the WASD keys to move the camera.");
     ImGui::Spacing();
-    ImGui::Text("Camera x: %f", m_camera->GetPosition().x);
-    ImGui::Text("Camera y: %f", m_camera->GetPosition().y);
+    ImGui::Text("Camera x: %.1f", m_camera->GetPosition().x);
+    ImGui::Text("Camera y: %.1f", m_camera->GetPosition().y);
 
-    // todo: why is a grid created?
-    //const auto v{ WORLD_WIDTH * m_parentGame->gameOptions.currentZoom.GetXRaster() };
-    //ImGui::SliderFloat2("Camera", reinterpret_cast<float*>(&m_camera->GetPosition()), -v, v);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    const auto mx{ Input::GetInstance().GetMousePosition().x + m_camera->GetPosition().x };
+    const auto my{ Input::GetInstance().GetMousePosition().y + m_camera->GetPosition().y };
+
+    m_mapPosition = { chunk::TileUtil::ScreenToMap(
+        mx,
+        my,
+        m_parentGame->gameOptions.currentZoom.GetDefaultTileWidth(),
+        m_parentGame->gameOptions.currentZoom.GetDefaultTileHeight())
+    };
+
+    ImGui::Text("Mouse rel x: %.1f", mx);
+    ImGui::Text("Mouse rel y: %.1f", my);
+    ImGui::Text("Map x: %.1f", m_mapPosition.x);
+    ImGui::Text("Map y: %.1f", m_mapPosition.y);
+
+
+    /*
+    const auto screen{ chunk::TileUtil::MapToScreen(
+        m_mapPosition.x,
+        m_mapPosition.y,
+        m_parentGame->gameOptions.currentZoom.GetXRaster(),
+        m_parentGame->gameOptions.currentZoom.GetYRaster())
+    };
+
+    auto modelMatrix{ glm::mat4(1.0f) };
+    modelMatrix = translate(modelMatrix, glm::vec3(
+        screen.x,
+        screen.y,
+        0.0f)
+    );
+    modelMatrix = scale(modelMatrix, glm::vec3(
+        m_parentGame->gameOptions.currentZoom.GetDefaultTileWidth(),
+        m_parentGame->gameOptions.currentZoom.GetDefaultTileHeight(),
+        1.0f)
+    );
+
+    if (m_mapPosition.x >= 0 && m_mapPosition.y >= 0)
+    {
+        m_meshRenderer->Render(modelMatrix, *m_camera, glm::vec3(0.0f, 0.0f, 1.0f));
+    }
+    */
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
     ImGui::Separator();
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/vec2.hpp>
 #include "BinaryFile.h"
 #include "renderer/Zoom.h"
 #include "chunk/TileGraphic.h"
@@ -68,6 +69,8 @@ namespace sg::file
             int& t_info,
             bool t_renderIslandAabbs = false
         );
+
+        void Update(const glm::ivec2& t_mapPosition);
 
         //-------------------------------------------------
         // BinaryFile Interface

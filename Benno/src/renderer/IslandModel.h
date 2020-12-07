@@ -71,9 +71,10 @@ namespace sg::renderer
         std::vector<float> m_yBuffer;
         std::unordered_map<int, int> m_gfxIndexMap;
 
-        uint32_t m_vao{ 0 };
+        uint32_t m_vaoId{ 0 };
         gl::Shader m_shader{ "res/shader/islands/Vertex.vert", "res/shader/islands/Fragment.frag" };
         uint32_t m_textureArrayId{ 0 };
+        uint32_t m_instances{ 0 };
 
         physics::Aabb m_aabb;
 

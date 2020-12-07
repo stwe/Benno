@@ -1,33 +1,39 @@
 #pragma once
 
 #include <glm/vec2.hpp>
+#include "Game.h"
 
 namespace sg::chunk
 {
     struct TileUtil
     {
-        static glm::ivec2 ScreenToMap(const float t_screenX, const float t_screenY, const int t_tileWidthHalf, const int t_tileHeightHalf)
+        static glm::vec2 ScreenToMap(const float t_screenX, const float t_screenY, const int t_tileWidth, const int t_tileHeight)
         {
-            const auto tileWidthHalf{ static_cast<float>(t_tileWidthHalf) };
-            const auto tileHeightHalf{ static_cast<float>(t_tileHeightHalf) };
+            const auto tileWidth{ static_cast<float>(t_tileWidth) };
+            const auto tileHeight{ static_cast<float>(t_tileHeight) };
 
-            return glm::ivec2(
-                (t_screenX / tileWidthHalf + t_screenY / tileHeightHalf) / 2,
-                (t_screenY / tileHeightHalf - t_screenX / tileHeightHalf) / 2
-            );
+            return {
+                (t_screenX / tileWidth + t_screenY / tileHeight),
+                (t_screenY / tileHeight - t_screenX / tileWidth)
+            };
         }
 
         static glm::ivec2 MapToScreen(const int t_mapX, const int t_mapY, const int t_tileWidthHalf, const int t_tileHeightHalf)
         {
-            return glm::ivec2(
+            return {
                 (t_mapX - t_mapY) * t_tileWidthHalf,
                 (t_mapX + t_mapY) * t_tileHeightHalf
-            );
+            };
         }
 
         static int AdjustHeight(const int t_tileHeightHalf, const int t_tileHeight, const int t_elevation)
         {
             return 2 * t_tileHeightHalf - t_tileHeight / t_elevation;
+        }
+
+        static int GetIndexFrom2D(const int t_mapX, const int t_mapY)
+        {
+            return t_mapY * Game::WORLD_WIDTH + t_mapX;
         }
     };
 }

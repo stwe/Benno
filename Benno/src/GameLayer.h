@@ -1,7 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <glm/vec2.hpp>
 #include "Layer.h"
+
+namespace sg::renderer
+{
+    class MeshRenderer;
+}
 
 namespace sg::camera
 {
@@ -27,9 +33,6 @@ namespace sg
     class GameLayer : public Layer
     {
     public:
-        static constexpr auto WORLD_WIDTH{ 500 };
-        static constexpr auto WORLD_HEIGHT{ 350 };
-
         //-------------------------------------------------
         // Ctors. / Dtor.
         //-------------------------------------------------
@@ -66,6 +69,9 @@ namespace sg
         std::unique_ptr<file::PaletteFile> m_paletteFile;
         std::shared_ptr<file::BshFile> m_bshFile;
         std::unique_ptr<file::GamFile> m_gamFile;
+
+        std::unique_ptr<renderer::MeshRenderer> m_meshRenderer;
+        glm::vec2 m_mapPosition{ 0.0f };
 
         int m_info{ 0 };
         bool m_renderIslandAabbs{ true };

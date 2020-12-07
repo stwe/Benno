@@ -22,15 +22,14 @@ sg::renderer::IslandModel::IslandModel(Zoom& t_zoom, chunk::Island5* t_parentIsl
 {
     SG_ASSERT(m_parentIsland, "[IslandModel::IslandModel()] Null pointer.");
 
-    // todo: the Island instance should have an Id
-    Log::SG_LOG_DEBUG("[IslandModel::IslandModel()] Create IslandModel.");
+    Log::SG_LOG_DEBUG("[IslandModel::IslandModel()] Create IslandModel for Island {}.", m_parentIsland->GetIsland5Data().islandNumber);
 
     Init();
 }
 
 sg::renderer::IslandModel::~IslandModel()
 {
-    Log::SG_LOG_DEBUG("[IslandModel::~IslandModel()] Destruct IslandModel.");
+    Log::SG_LOG_DEBUG("[IslandModel::~IslandModel()] Destruct IslandModel for Island {}.", m_parentIsland->GetIsland5Data().islandNumber);
 }
 
 //-------------------------------------------------
@@ -42,7 +41,7 @@ void sg::renderer::IslandModel::Render(const camera::OrthographicCamera& t_camer
     OpenGL::EnableAlphaBlending();
 
     m_shader.Bind();
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     gl::Texture::BindForReading(m_textureArrayId, GL_TEXTURE0, GL_TEXTURE_2D_ARRAY);
 
@@ -50,7 +49,7 @@ void sg::renderer::IslandModel::Render(const camera::OrthographicCamera& t_camer
     m_shader.SetUniform("sampler", 0);
     m_shader.SetUniform("maxY", static_cast<float>(m_bshFile->GetMaxY()));
 
-    glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, static_cast<uint32_t>(m_modelMatrices.size()));
+    glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, m_instances);
 
     glBindVertexArray(0);
     gl::Shader::Unbind();
@@ -99,6 +98,8 @@ void sg::renderer::IslandModel::Init()
     CreateTextureArray();
 
     CreateAabb();
+
+    m_instances = static_cast<uint32_t>(m_modelMatrices.size());
 
     Log::SG_LOG_DEBUG("[IslandModel::Init()] Island model initializing successfully.");
 }
@@ -240,24 +241,24 @@ void sg::renderer::IslandModel::CreateMesh()
     };
 
     // create VAO
-    glGenVertexArrays(1, &m_vao);
+    glGenVertexArrays(1, &m_vaoId);
 
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // store data
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, false, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, false, 4 * sizeof(float), nullptr);
 
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -273,21 +274,21 @@ void sg::renderer::IslandModel::CreateMesh()
 void sg::renderer::IslandModel::AddModelMatricesVbo()
 {
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // stora data
     glBufferData(GL_ARRAY_BUFFER, m_modelMatrices.size() * sizeof(glm::mat4), m_modelMatrices.data(), GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), nullptr);
 
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
@@ -313,14 +314,14 @@ void sg::renderer::IslandModel::AddModelMatricesVbo()
 void sg::renderer::IslandModel::AddTextureIndexVbo()
 {
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // store data
     glBufferData(GL_ARRAY_BUFFER, m_textureBuffer.size() * sizeof(int), m_textureBuffer.data(), GL_STATIC_DRAW);
@@ -341,21 +342,21 @@ void sg::renderer::IslandModel::AddTextureIndexVbo()
 void sg::renderer::IslandModel::AddYVbo()
 {
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // store data
     glBufferData(GL_ARRAY_BUFFER, m_yBuffer.size() * sizeof(float), m_yBuffer.data(), GL_STATIC_DRAW);
 
     // set layout
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(float), (void*)0);
+    glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(float), nullptr);
 
     glVertexAttribDivisor(6, 1);
 

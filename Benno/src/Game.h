@@ -18,6 +18,9 @@ namespace sg
     class Game
     {
     public:
+        static constexpr auto WORLD_WIDTH{ 500 };
+        static constexpr auto WORLD_HEIGHT{ 350 };
+
         using Clock = std::chrono::high_resolution_clock;
 
         //-------------------------------------------------

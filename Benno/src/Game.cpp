@@ -211,11 +211,6 @@ void sg::Game::OnInput()
         m_running = false;
     }
 
-    if (Input::GetInstance().IsKeyDown(SDL_BUTTON_RIGHT))
-    {
-        Log::SG_LOG_DEBUG("Right mouse button pressed.");
-    }
-
     for (auto* layer : m_layerList)
     {
         layer->OnInput();

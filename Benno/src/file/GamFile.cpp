@@ -1,9 +1,9 @@
-#include <glm/vec2.hpp>
+#include <SDL_mouse.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Game.h"
 #include "GamFile.h"
 #include "BshFile.h"
 #include "BshTexture.h"
-#include "GameLayer.h"
 #include "Input.h"
 #include "Log.h"
 #include "data/HousesJsonFile.h"
@@ -60,9 +60,10 @@ void sg::file::GamFile::Render(
     const bool t_renderIslandAabbs
 )
 {
-    m_deepWaterRenderer->Render(t_camera);
+    m_deepWaterRenderer->Render(t_camera, false);
 
     t_info = 0;
+    /*
     for (const auto& islandModel : m_islandModels)
     {
         auto intersect{ false };
@@ -104,6 +105,15 @@ void sg::file::GamFile::Render(
                 m_meshRenderer->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 0.0f, 0.0f));
             }
         }
+    }
+    */
+}
+
+void sg::file::GamFile::Update(const glm::ivec2& t_mapPosition)
+{
+    if (Input::GetInstance().IsKeyDown(SDL_BUTTON_LEFT))
+    {
+        m_deepWaterRenderer->UpdateIntensity(t_mapPosition.x, t_mapPosition.y, glm::vec3(1.0f, 1.0f, 1.0f));
     }
 }
 
@@ -163,6 +173,7 @@ void sg::file::GamFile::InitDeepWaterArea()
     std::vector<chunk::TileGraphic> deepWaterGraphicTiles;
     std::vector<glm::mat4> deepWaterModelMatrices;
     std::vector<int> deepWaterTextureBuffer;
+    std::vector<glm::vec3> intensityBuffer;
 
     CreateDeepWaterGraphicTiles(deepWaterGraphicTiles);
 
@@ -172,7 +183,14 @@ void sg::file::GamFile::InitDeepWaterArea()
         deepWaterTextureBuffer.push_back(tile.tileGfxInfo.gfxIndex - renderer::DeepWaterRenderer::START_GFX_INDEX);
     }
 
-    m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(m_bshFile, std::move(deepWaterModelMatrices), std::move(deepWaterTextureBuffer));
+    intensityBuffer.resize(deepWaterGraphicTiles.size(), glm::vec3(0.4, 0.4, 0.4));
+
+    m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(
+        m_bshFile,
+        std::move(deepWaterModelMatrices),
+        std::move(deepWaterTextureBuffer),
+        std::move(intensityBuffer)
+        );
     m_deepWaterRenderer->Init(m_zoom);
 }
 
@@ -180,9 +198,9 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
 {
     constexpr auto waterId{ 1201 };
 
-    for (auto y{ 0 }; y < GameLayer::WORLD_HEIGHT; ++y)
+    for (auto y{ 0 }; y < Game::WORLD_HEIGHT; ++y)
     {
-        for (auto x{ 0 }; x < GameLayer::WORLD_WIDTH; ++x)
+        for (auto x{ 0 }; x < Game::WORLD_WIDTH; ++x)
         {
             if (!IsIslandOnPosition(x, y, m_island5List))
             {
@@ -204,13 +222,14 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
                     m_zoom.GetElevation())
                 };
 
-                screenPosition.y += adjustHeight;
+                //screenPosition.y += adjustHeight;
 
-                screenPosition.x -= waterBshTexture.width;
-                screenPosition.y -= waterBshTexture.height;
+                //screenPosition.x -= waterBshTexture.width;
+                //screenPosition.y -= waterBshTexture.height;
 
                 deepWaterTileGraphic.screenPosition = glm::vec2(screenPosition.x, screenPosition.y);
-                deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);
+                //deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);
+                deepWaterTileGraphic.size = glm::vec2(64.0f, 32.0f);
 
                 t_graphicTiles.push_back(deepWaterTileGraphic);
             }

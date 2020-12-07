@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 #include <vector>
 #include "gl/Shader.h"
@@ -33,7 +34,8 @@ namespace sg::renderer
         DeepWaterRenderer(
             std::shared_ptr<file::BshFile> t_bshFile,
             std::vector<glm::mat4>&& t_deepWaterModelMatrices,
-            std::vector<int>&& t_deepWaterTextureBuffer
+            std::vector<int>&& t_deepWaterTextureBuffer,
+            std::vector<glm::vec3>&& t_intensityBuffer
         );
 
         DeepWaterRenderer(const DeepWaterRenderer& t_other) = delete;
@@ -53,7 +55,13 @@ namespace sg::renderer
         // Logic
         //-------------------------------------------------
 
-        void Render(const camera::OrthographicCamera& t_camera);
+        void Render(const camera::OrthographicCamera& t_camera, bool t_wireframe = false);
+
+        //-------------------------------------------------
+        // Update Vbo
+        //-------------------------------------------------
+
+        void UpdateIntensity(int t_mapX, int t_mapY, const glm::vec3& t_intensity) const;
 
     protected:
 
@@ -66,10 +74,13 @@ namespace sg::renderer
         std::shared_ptr<file::BshFile> m_bshFile;
         std::vector<glm::mat4> m_deepWaterModelMatrices;
         std::vector<int> m_deepWaterTextureBuffer;
+        std::vector<glm::vec3> m_intensityBuffer;
 
-        uint32_t m_vao{ 0 };
+        uint32_t m_vaoId{ 0 };
         gl::Shader m_shader{ "res/shader/deepWater/Vertex.vert", "res/shader/deepWater/Fragment.frag" };
         uint32_t m_textureArrayId{ 0 };
+        uint32_t m_instances{ 0 };
+        uint32_t m_intensityVboId{ 0 };
 
         int m_textureWidth{ 0 };
         int m_textureHeight{ 0 };
@@ -86,6 +97,7 @@ namespace sg::renderer
 
         void AddModelMatricesVbo();
         void AddTextureIndexVbo();
+        void AddIntensityVbo();
 
         //-------------------------------------------------
         // Texture array

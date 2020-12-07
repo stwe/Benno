@@ -6,6 +6,7 @@
 #include "gl/Texture.h"
 #include "file/BshFile.h"
 #include "file/BshTexture.h"
+#include "chunk/TileUtil.h"
 #include "camera/OrthographicCamera.h"
 
 //-------------------------------------------------
@@ -15,11 +16,13 @@
 sg::renderer::DeepWaterRenderer::DeepWaterRenderer(
     std::shared_ptr<file::BshFile> t_bshFile,
     std::vector<glm::mat4>&& t_deepWaterModelMatrices,
-    std::vector<int>&& t_deepWaterTextureBuffer
+    std::vector<int>&& t_deepWaterTextureBuffer,
+    std::vector<glm::vec3>&& t_intensityBuffer
 )
     : m_bshFile{ std::move(t_bshFile) }
     , m_deepWaterModelMatrices{ std::move(t_deepWaterModelMatrices) }
     , m_deepWaterTextureBuffer{ std::move(t_deepWaterTextureBuffer) }
+    , m_intensityBuffer{ std::move(t_intensityBuffer) }
 {
     Log::SG_LOG_DEBUG("[DeepWaterRenderer::DeepWaterRenderer()] Create DeepWaterRenderer.");
 }
@@ -45,32 +48,61 @@ void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
 
     AddModelMatricesVbo();
     AddTextureIndexVbo();
+    AddIntensityVbo();
 
     CreateTextureArray();
+
+    m_instances = static_cast<uint32_t>(m_deepWaterModelMatrices.size());
 }
 
 //-------------------------------------------------
 // Logic
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t_camera)
+void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t_camera, const bool t_wireframe)
 {
-    OpenGL::EnableAlphaBlending();
+    t_wireframe == false ? OpenGL::EnableAlphaBlending() : OpenGL::EnableWireframeMode();
 
     m_shader.Bind();
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     gl::Texture::BindForReading(m_textureArrayId, GL_TEXTURE0, GL_TEXTURE_2D_ARRAY);
 
     m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
     m_shader.SetUniform("sampler", 0);
 
-    glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, static_cast<uint32_t>(m_deepWaterModelMatrices.size()));
+    glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, m_instances);
 
     glBindVertexArray(0);
     gl::Shader::Unbind();
 
-    OpenGL::DisableBlending();
+    t_wireframe == false ? OpenGL::DisableBlending() : OpenGL::DisableWireframeMode();
+}
+
+//-------------------------------------------------
+// Update Vbo
+//-------------------------------------------------
+
+void sg::renderer::DeepWaterRenderer::UpdateIntensity(const int t_mapX, const int t_mapY, const glm::vec3& t_intensity) const
+{
+    if (t_mapX < 0 || t_mapY < 0)
+    {
+        return;
+    }
+
+    // bind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, m_intensityVboId);
+
+    // update intensity at the specified index
+    glBufferSubData(
+        GL_ARRAY_BUFFER,
+        chunk::TileUtil::GetIndexFrom2D(t_mapX, t_mapY) * sizeof(glm::vec3),
+        sizeof(glm::vec3),
+        &t_intensity
+    );
+
+    // unbind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 //-------------------------------------------------
@@ -91,24 +123,24 @@ void sg::renderer::DeepWaterRenderer::CreateMesh()
     };
 
     // create VAO
-    glGenVertexArrays(1, &m_vao);
+    glGenVertexArrays(1, &m_vaoId);
 
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // store data
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
 
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -124,21 +156,21 @@ void sg::renderer::DeepWaterRenderer::CreateMesh()
 void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
 {
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // stora data
     glBufferData(GL_ARRAY_BUFFER, m_deepWaterModelMatrices.size() * sizeof(glm::mat4), m_deepWaterModelMatrices.data(), GL_STATIC_DRAW);
 
     // set buffer layout
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), nullptr);
 
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
@@ -164,14 +196,14 @@ void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
 void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
 {
     // bind VAO
-    glBindVertexArray(m_vao);
+    glBindVertexArray(m_vaoId);
 
     // create VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    uint32_t vboId;
+    glGenBuffers(1, &vboId);
 
     // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
 
     // store data
     glBufferData(GL_ARRAY_BUFFER, m_deepWaterTextureBuffer.size() * sizeof(int), m_deepWaterTextureBuffer.data(), GL_STATIC_DRAW);
@@ -181,6 +213,33 @@ void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
     glVertexAttribIPointer(5, 4, GL_INT, 4, nullptr);
 
     glVertexAttribDivisor(5, 1);
+
+    // unbind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // unbind VAO
+    glBindVertexArray(0);
+}
+
+void sg::renderer::DeepWaterRenderer::AddIntensityVbo()
+{
+    // bind VAO
+    glBindVertexArray(m_vaoId);
+
+    // create VBO
+    glGenBuffers(1, &m_intensityVboId);
+
+    // bind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, m_intensityVboId);
+
+    // store data
+    glBufferData(GL_ARRAY_BUFFER, m_intensityBuffer.size() * sizeof(glm::vec3), m_intensityBuffer.data(), GL_DYNAMIC_DRAW);
+
+    // set layout
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(glm::vec3), nullptr);
+
+    glVertexAttribDivisor(6, 1);
 
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
