@@ -1,4 +1,4 @@
-#include <glm/vec4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "DeepWaterRenderer.h"
 #include "Log.h"
 #include "OpenGL.h"
@@ -61,7 +61,7 @@ void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
 
 void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t_camera, const bool t_wireframe)
 {
-    t_wireframe == false ? OpenGL::EnableAlphaBlending() : OpenGL::EnableWireframeMode();
+    !t_wireframe ? OpenGL::EnableAlphaBlending() : OpenGL::EnableWireframeMode();
 
     m_shader.Bind();
     glBindVertexArray(m_vaoId);
@@ -76,7 +76,7 @@ void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t
     glBindVertexArray(0);
     gl::Shader::Unbind();
 
-    t_wireframe == false ? OpenGL::DisableBlending() : OpenGL::DisableWireframeMode();
+    !t_wireframe ? OpenGL::DisableBlending() : OpenGL::DisableWireframeMode();
 }
 
 //-------------------------------------------------
@@ -90,6 +90,11 @@ void sg::renderer::DeepWaterRenderer::UpdateIntensity(const int t_mapX, const in
         return;
     }
 
+    // todo: Denkfehler:
+    // todo: das kann so nicht funktionieren, da zwar der Index richtig berechnet wird, aber
+    // todo: nur bezogen auf alle Tiles; der InsensityVbo beinhaltet nur DeepWaterTiles und deckt
+    // todo: somit nicht die ganze Karte ab (Index -> fehlender Value)
+
     // bind VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_intensityVboId);
 
@@ -98,7 +103,7 @@ void sg::renderer::DeepWaterRenderer::UpdateIntensity(const int t_mapX, const in
         GL_ARRAY_BUFFER,
         chunk::TileUtil::GetIndexFrom2D(t_mapX, t_mapY) * sizeof(glm::vec3),
         sizeof(glm::vec3),
-        &t_intensity
+        glm::value_ptr(t_intensity)
     );
 
     // unbind VBO
@@ -170,16 +175,16 @@ void sg::renderer::DeepWaterRenderer::AddModelMatricesVbo()
 
     // set buffer layout
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), nullptr);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), nullptr);
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(1 * sizeof(glm::vec4)));
 
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
 
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
 
     glVertexAttribDivisor(1, 1);
     glVertexAttribDivisor(2, 1);
@@ -210,7 +215,7 @@ void sg::renderer::DeepWaterRenderer::AddTextureIndexVbo()
 
     // set layout
     glEnableVertexAttribArray(5);
-    glVertexAttribIPointer(5, 1, GL_INT, 4, nullptr);
+    glVertexAttribIPointer(5, 1, GL_INT, sizeof(int), nullptr);
 
     glVertexAttribDivisor(5, 1);
 
@@ -237,7 +242,7 @@ void sg::renderer::DeepWaterRenderer::AddIntensityVbo()
 
     // set layout
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 3, GL_FLOAT, false, sizeof(glm::vec3), nullptr);
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 
     glVertexAttribDivisor(6, 1);
 

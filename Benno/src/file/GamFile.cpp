@@ -183,6 +183,7 @@ void sg::file::GamFile::InitDeepWaterArea()
         deepWaterTextureBuffer.push_back(tile.tileGfxInfo.gfxIndex - renderer::DeepWaterRenderer::START_GFX_INDEX);
     }
 
+    // todo: see DeepWaterRenderer
     intensityBuffer.resize(deepWaterGraphicTiles.size(), glm::vec3(0.4, 0.4, 0.4));
 
     m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(
