@@ -61,7 +61,7 @@ namespace sg::renderer
         // Update Vbo
         //-------------------------------------------------
 
-        void UpdateIntensity(int t_mapX, int t_mapY, const glm::vec3& t_intensity) const;
+        void UpdateIntensity(int t_index, const glm::vec3& t_intensity) const;
 
     protected:
 

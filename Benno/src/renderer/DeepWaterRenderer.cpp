@@ -6,7 +6,6 @@
 #include "gl/Texture.h"
 #include "file/BshFile.h"
 #include "file/BshTexture.h"
-#include "chunk/TileUtil.h"
 #include "camera/OrthographicCamera.h"
 
 //-------------------------------------------------
@@ -83,27 +82,17 @@ void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t
 // Update Vbo
 //-------------------------------------------------
 
-void sg::renderer::DeepWaterRenderer::UpdateIntensity(const int t_mapX, const int t_mapY, const glm::vec3& t_intensity) const
+void sg::renderer::DeepWaterRenderer::UpdateIntensity(const int t_index, const glm::vec3& t_intensity) const
 {
-    if (t_mapX < 0 || t_mapY < 0)
-    {
-        return;
-    }
-
-    // todo: Denkfehler:
-    // todo: das kann so nicht funktionieren, da zwar der Index richtig berechnet wird, aber
-    // todo: nur bezogen auf alle Tiles; der InsensityVbo beinhaltet nur DeepWaterTiles und deckt
-    // todo: somit nicht die ganze Karte ab (Index -> fehlender Value)
-
     // bind VBO
     glBindBuffer(GL_ARRAY_BUFFER, m_intensityVboId);
 
     // update intensity at the specified index
     glBufferSubData(
         GL_ARRAY_BUFFER,
-        chunk::TileUtil::GetIndexFrom2D(t_mapX, t_mapY) * sizeof(glm::vec3),
+        t_index * sizeof(glm::vec3),
         sizeof(glm::vec3),
-        glm::value_ptr(t_intensity)
+        value_ptr(t_intensity)
     );
 
     // unbind VBO

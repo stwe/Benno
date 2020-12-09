@@ -113,7 +113,12 @@ void sg::file::GamFile::Update(const int t_mapX, const int t_mapY)
 {
     if (Input::GetInstance().IsKeyDown(SDL_BUTTON_LEFT))
     {
-        m_deepWaterRenderer->UpdateIntensity(t_mapX, t_mapY, glm::vec3(1.0f, 1.0f, 1.0f));
+        const auto index{ DeepWaterTileInVbo(t_mapX, t_mapY) };
+
+        if (index > NO_DEEP_WATER)
+        {
+            m_deepWaterRenderer->UpdateIntensity(index, BRIGHT);
+        }
     }
 }
 
@@ -183,8 +188,7 @@ void sg::file::GamFile::InitDeepWaterArea()
         deepWaterTextureBuffer.push_back(tile.tileGfxInfo.gfxIndex - renderer::DeepWaterRenderer::START_GFX_INDEX);
     }
 
-    // todo: see DeepWaterRenderer
-    intensityBuffer.resize(deepWaterGraphicTiles.size(), glm::vec3(0.4, 0.4, 0.4));
+    intensityBuffer.resize(deepWaterGraphicTiles.size(), DARK);
 
     m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(
         m_bshFile,
@@ -195,9 +199,11 @@ void sg::file::GamFile::InitDeepWaterArea()
     m_deepWaterRenderer->Init(m_zoom);
 }
 
-void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const
+void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles)
 {
     constexpr auto waterId{ 1201 };
+
+    m_deepWaterIndex.resize(Game::WORLD_HEIGHT * Game::WORLD_WIDTH, NO_DEEP_WATER);
 
     for (auto y{ 0 }; y < Game::WORLD_HEIGHT; ++y)
     {
@@ -232,9 +238,20 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
                 deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);
 
                 t_graphicTiles.push_back(deepWaterTileGraphic);
+                m_deepWaterIndex[chunk::TileUtil::GetIndexFrom2D(x, y)] = static_cast<int>(t_graphicTiles.size()) - 1;
             }
         }
     }
+}
+
+int sg::file::GamFile::DeepWaterTileInVbo(const int t_mapX, const int t_mapY)
+{
+    if (t_mapX < 0 || t_mapY < 0)
+    {
+        return NO_DEEP_WATER;
+    }
+
+    return m_deepWaterIndex[chunk::TileUtil::GetIndexFrom2D(t_mapX, t_mapY)];
 }
 
 //-------------------------------------------------

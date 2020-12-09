@@ -80,6 +80,10 @@ namespace sg::file
     protected:
 
     private:
+        static constexpr auto DARK{ glm::vec3(0.4f) };
+        static constexpr auto BRIGHT{ glm::vec3(1.0f) };
+        static constexpr auto NO_DEEP_WATER{ -1 };
+
         std::shared_ptr<BshFile> m_bshFile;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
         renderer::Zoom m_zoom;
@@ -90,6 +94,8 @@ namespace sg::file
         std::unique_ptr<renderer::MeshRenderer> m_meshRenderer;
 
         std::vector<std::unique_ptr<renderer::IslandModel>> m_islandModels;
+
+        std::vector<int> m_deepWaterIndex;
 
         //-------------------------------------------------
         // Island5 Layer
@@ -102,7 +108,8 @@ namespace sg::file
         //-------------------------------------------------
 
         void InitDeepWaterArea();
-        void CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles) const;
+        void CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles);
+        int DeepWaterTileInVbo(int t_mapX, int t_mapY);
 
         //-------------------------------------------------
         // Islands area
