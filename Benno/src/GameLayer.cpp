@@ -97,18 +97,10 @@ void sg::GameLayer::OnGuiRender()
     ImGui::Text("Map y: %d", static_cast<int>(m_mapPosition.y));
 
 
-    /*
-    const auto screen{ chunk::TileUtil::MapToScreen(
-        m_mapPosition.x,
-        m_mapPosition.y,
-        m_parentGame->gameOptions.currentZoom.GetXRaster(),
-        m_parentGame->gameOptions.currentZoom.GetYRaster())
-    };
-
     auto modelMatrix{ glm::mat4(1.0f) };
     modelMatrix = translate(modelMatrix, glm::vec3(
-        screen.x,
-        screen.y,
+        mx - static_cast<float>(m_parentGame->gameOptions.currentZoom.GetXRaster()),
+        my - static_cast<float>(m_parentGame->gameOptions.currentZoom.GetYRaster()),
         0.0f)
     );
     modelMatrix = scale(modelMatrix, glm::vec3(
@@ -121,7 +113,6 @@ void sg::GameLayer::OnGuiRender()
     {
         m_meshRenderer->Render(modelMatrix, *m_camera, glm::vec3(0.0f, 0.0f, 1.0f));
     }
-    */
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
