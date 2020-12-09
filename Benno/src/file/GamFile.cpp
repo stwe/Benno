@@ -63,7 +63,6 @@ void sg::file::GamFile::Render(
     m_deepWaterRenderer->Render(t_camera, false);
 
     t_info = 0;
-    /*
     for (const auto& islandModel : m_islandModels)
     {
         auto intersect{ false };
@@ -106,7 +105,6 @@ void sg::file::GamFile::Render(
             }
         }
     }
-    */
 }
 
 void sg::file::GamFile::Update(const int t_mapX, const int t_mapY)
@@ -229,10 +227,10 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
                     m_zoom.GetElevation())
                 };
 
-                //screenPosition.y += adjustHeight;
+                screenPosition.y += adjustHeight;
 
-                //screenPosition.x -= waterBshTexture.width;
-                //screenPosition.y -= waterBshTexture.height;
+                screenPosition.x -= waterBshTexture.width;
+                screenPosition.y -= waterBshTexture.height;
 
                 deepWaterTileGraphic.screenPosition = glm::vec2(screenPosition.x, screenPosition.y);
                 deepWaterTileGraphic.size = glm::vec2(waterBshTexture.width, waterBshTexture.height);

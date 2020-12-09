@@ -7,10 +7,12 @@ namespace sg::chunk
 {
     struct TileUtil
     {
-        static glm::vec2 ScreenToMap(const float t_screenX, const float t_screenY, const int t_tileWidth, const int t_tileHeight)
+        static glm::vec2 ScreenToMap(float t_screenX, const float t_screenY, const int t_tileWidth, const int t_tileHeight)
         {
             const auto tileWidth{ static_cast<float>(t_tileWidth) };
             const auto tileHeight{ static_cast<float>(t_tileHeight) };
+
+            t_screenX += tileWidth * 0.5f;
 
             return {
                 (t_screenX / tileWidth + t_screenY / tileHeight),
