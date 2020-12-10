@@ -1,4 +1,6 @@
+#include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
+#include "Game.h"
 #include "IslandModel.h"
 #include "OpenGL.h"
 #include "SgAssert.h"
@@ -58,6 +60,27 @@ void sg::renderer::IslandModel::Render(const camera::OrthographicCamera& t_camer
 }
 
 //-------------------------------------------------
+// Update Vbo
+//-------------------------------------------------
+
+void sg::renderer::IslandModel::UpdateIntensity(const int t_index, const glm::vec3& t_intensity) const
+{
+    // bind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, m_intensityVboId);
+
+    // update intensity at the specified index
+    glBufferSubData(
+        GL_ARRAY_BUFFER,
+        t_index * sizeof(glm::vec3),
+        sizeof(glm::vec3),
+        value_ptr(t_intensity)
+    );
+
+    // unbind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+//-------------------------------------------------
 // Getter
 //-------------------------------------------------
 
@@ -66,13 +89,28 @@ sg::chunk::Island5* sg::renderer::IslandModel::GetParentIsland() const noexcept
     return m_parentIsland;
 }
 
-//-------------------------------------------------
-// Physics
-//-------------------------------------------------
-
 sg::physics::Aabb sg::renderer::IslandModel::GetAabb() const noexcept
 {
     return m_aabb;
+}
+
+const std::vector<int>& sg::renderer::IslandModel::GetIslandIndex() const noexcept
+{
+    return m_islandIndex;
+}
+
+//-------------------------------------------------
+// Helper
+//-------------------------------------------------
+
+int sg::renderer::IslandModel::IslandTileInVbo(const int t_mapX, const int t_mapY)
+{
+    if (t_mapX < 0 || t_mapY < 0)
+    {
+        return NO_ISLAND;
+    }
+
+    return m_islandIndex[chunk::TileUtil::GetIndexFrom2D(t_mapX, t_mapY)];
 }
 
 //-------------------------------------------------
@@ -94,6 +132,7 @@ void sg::renderer::IslandModel::Init()
     AddModelMatricesVbo();
     AddTextureIndexVbo();
     AddYVbo();
+    AddIntensityVbo();
 
     CreateTextureArray();
 
@@ -110,6 +149,8 @@ void sg::renderer::IslandModel::Init()
 
 void sg::renderer::IslandModel::CreateGraphicTiles()
 {
+    m_islandIndex.resize(Game::WORLD_HEIGHT * Game::WORLD_WIDTH, NO_ISLAND);
+
     for (auto y{ m_parentIsland->GetIsland5Data().posy }; y < m_parentIsland->GetIsland5Data().posy + m_parentIsland->GetIsland5Data().height; y++)
     {
         for (auto x{ m_parentIsland->GetIsland5Data().posx }; x < m_parentIsland->GetIsland5Data().posx + m_parentIsland->GetIsland5Data().width; x++)
@@ -140,8 +181,11 @@ void sg::renderer::IslandModel::CreateGraphicTiles()
             tileGraphic.size = glm::vec2(bshTexture.width, bshTexture.height);
 
             m_graphicTiles.push_back(tileGraphic);
+            m_islandIndex[chunk::TileUtil::GetIndexFrom2D(x, y)] = static_cast<int>(m_graphicTiles.size()) - 1;
         }
     }
+
+    m_intensityBuffer.resize(m_graphicTiles.size(), DARK);
 }
 
 void sg::renderer::IslandModel::CreateModelMatrices()
@@ -359,6 +403,33 @@ void sg::renderer::IslandModel::AddYVbo()
     glVertexAttribPointer(6, 4, GL_FLOAT, false, sizeof(float), nullptr);
 
     glVertexAttribDivisor(6, 1);
+
+    // unbind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // unbind VAO
+    glBindVertexArray(0);
+}
+
+void sg::renderer::IslandModel::AddIntensityVbo()
+{
+    // bind VAO
+    glBindVertexArray(m_vaoId);
+
+    // create VBO
+    glGenBuffers(1, &m_intensityVboId);
+
+    // bind VBO
+    glBindBuffer(GL_ARRAY_BUFFER, m_intensityVboId);
+
+    // store data
+    glBufferData(GL_ARRAY_BUFFER, m_intensityBuffer.size() * sizeof(glm::vec3), m_intensityBuffer.data(), GL_DYNAMIC_DRAW);
+
+    // set layout
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
+
+    glVertexAttribDivisor(7, 1);
 
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);

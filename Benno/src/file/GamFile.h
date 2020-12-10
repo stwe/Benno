@@ -83,6 +83,7 @@ namespace sg::file
         static constexpr auto DARK{ glm::vec3(0.4f) };
         static constexpr auto BRIGHT{ glm::vec3(1.0f) };
         static constexpr auto NO_DEEP_WATER{ -1 };
+        static constexpr auto NO_ISLAND{ -1 };
 
         std::shared_ptr<BshFile> m_bshFile;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;

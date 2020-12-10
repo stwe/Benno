@@ -111,11 +111,22 @@ void sg::file::GamFile::Update(const int t_mapX, const int t_mapY)
 {
     if (Input::GetInstance().IsKeyDown(SDL_BUTTON_LEFT))
     {
-        const auto index{ DeepWaterTileInVbo(t_mapX, t_mapY) };
+        auto index{ DeepWaterTileInVbo(t_mapX, t_mapY) };
 
         if (index > NO_DEEP_WATER)
         {
             m_deepWaterRenderer->UpdateIntensity(index, BRIGHT);
+        }
+        else
+        {
+            for (const auto& islandModel : m_islandModels)
+            {
+                index = islandModel->IslandTileInVbo(t_mapX, t_mapY);
+                if (index > NO_ISLAND)
+                {
+                    islandModel->UpdateIntensity(index, BRIGHT);
+                }
+            }
         }
     }
 }

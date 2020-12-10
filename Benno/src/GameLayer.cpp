@@ -83,6 +83,8 @@ void sg::GameLayer::OnGuiRender()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // get map position
+
     const auto mx{ Input::GetInstance().GetMousePosition().x + m_camera->GetPosition().x };
     const auto my{ Input::GetInstance().GetMousePosition().y + m_camera->GetPosition().y };
 
@@ -96,6 +98,7 @@ void sg::GameLayer::OnGuiRender()
     ImGui::Text("Map x: %d", static_cast<int>(m_mapPosition.x));
     ImGui::Text("Map y: %d", static_cast<int>(m_mapPosition.y));
 
+    // show map position
 
     auto modelMatrix{ glm::mat4(1.0f) };
     modelMatrix = translate(modelMatrix, glm::vec3(

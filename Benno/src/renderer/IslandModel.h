@@ -48,11 +48,24 @@ namespace sg::renderer
         void Render(const camera::OrthographicCamera& t_camera);
 
         //-------------------------------------------------
+        // Update Vbo
+        //-------------------------------------------------
+
+        void UpdateIntensity(int t_index, const glm::vec3& t_intensity) const;
+
+        //-------------------------------------------------
         // Getter
         //-------------------------------------------------
 
         [[nodiscard]] chunk::Island5* GetParentIsland() const noexcept;
         [[nodiscard]] physics::Aabb GetAabb() const noexcept;
+        [[nodiscard]] const std::vector<int>& GetIslandIndex() const noexcept;
+
+        //-------------------------------------------------
+        // Helper
+        //-------------------------------------------------
+
+        int IslandTileInVbo(int t_mapX, int t_mapY);
 
     protected:
 
@@ -60,6 +73,9 @@ namespace sg::renderer
         static constexpr auto DRAW_COUNT{ 6 };
         static constexpr auto MIP_LEVEL_COUNT{ 1 };
         static constexpr auto MAX_TEXTURES{ 1000 };
+
+        static constexpr auto DARK{ glm::vec3(0.1f) };
+        static constexpr auto NO_ISLAND{ -1 };
 
         Zoom m_zoom;
         chunk::Island5* m_parentIsland{ nullptr };
@@ -70,11 +86,15 @@ namespace sg::renderer
         std::vector<int> m_textureBuffer;
         std::vector<float> m_yBuffer;
         std::unordered_map<int, int> m_gfxIndexMap;
+        std::vector<glm::vec3> m_intensityBuffer;
 
         uint32_t m_vaoId{ 0 };
         gl::Shader m_shader{ "res/shader/islands/Vertex.vert", "res/shader/islands/Fragment.frag" };
         uint32_t m_textureArrayId{ 0 };
         uint32_t m_instances{ 0 };
+        uint32_t m_intensityVboId{ 0 };
+
+        std::vector<int> m_islandIndex;
 
         physics::Aabb m_aabb;
 
@@ -117,6 +137,7 @@ namespace sg::renderer
         void AddModelMatricesVbo();
         void AddTextureIndexVbo();
         void AddYVbo();
+        void AddIntensityVbo();
 
         //-------------------------------------------------
         // Texture array
