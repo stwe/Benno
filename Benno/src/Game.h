@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "LayerList.h"
 #include "file/Files.h"
+#include "renderer/Zoom.h"
 
 union SDL_Event;
 
@@ -55,6 +56,7 @@ namespace sg
 
         [[nodiscard]] const Window& GetWindow() const noexcept;
         [[nodiscard]] std::shared_ptr<gl::ShaderManager> GetShaderManager() const noexcept;
+        [[nodiscard]] const renderer::ZoomFactory& GetZoomFactory() const noexcept;
         [[nodiscard]] const file::Files& GetFiles() const noexcept;
 
         //-------------------------------------------------
@@ -70,6 +72,7 @@ namespace sg
 
         std::unique_ptr<Window> m_window;
         std::shared_ptr<gl::ShaderManager> m_shaderManager;
+        renderer::ZoomFactory m_zoomFactory;
         LayerList m_layerList;
         file::Files m_files{ gameOptions.resourcePath };
 

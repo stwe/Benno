@@ -1,3 +1,4 @@
+#include <magic_enum.hpp>
 #include <fstream>
 #include <filesystem>
 #include "Files.h"
@@ -64,14 +65,14 @@ void sg::file::Files::InitDirectoryTree(const std::string& t_path)
                     // BSH files
                     if (extension == ".bsh")
                     {
-                        const auto zoomId{ renderer::Zoom::StringToZoom(ToUpperCase(entry.path().filename().string())) };
+                        const auto zoomId{ magic_enum::enum_cast<renderer::Zoom::ZoomId>(ToUpperCase(entry.path().filename().string())) };
 
-                        if (zoomId != renderer::Zoom::ZoomId::NOT_ZOOMABLE)
+                        if (zoomId.has_value())
                         {
                             BennoZoomableBshFile bshFile;
                             bshFile.fullFilename = f.path().filename().string();  // e.g. stadtfld.bsh
                             bshFile.path = f.path().string();                     // e.g. E:\\Anno\\GFX\\stadtfld.bsh
-                            bshFile.zoomId = zoomId;
+                            bshFile.zoomId = zoomId.value();
                             bshFile.bshFileNameId = BshFile::StringToBshFileNameId(ToUpperCase(f.path().stem().string()));
 
                             m_bshFiles.emplace(bshFile.zoomId, bshFile);
@@ -115,7 +116,7 @@ void sg::file::Files::CheckForBshFiles()
     auto result{ true };
     for (const auto& bshFileId : BshFile::BSH_FILENAME_ID_TABLE)
     {
-        for (auto zoomId : renderer::Zoom::ZOOM_TABLE)
+        for (auto zoomId : magic_enum::enum_values<renderer::Zoom::ZoomId>())
         {
             const auto check{ CheckForBshFile(zoomId, bshFileId) };
             if (!check)
@@ -123,7 +124,7 @@ void sg::file::Files::CheckForBshFiles()
                 result = false;
             }
 
-            Log::SG_LOG_INFO("[Files::CheckForBshFiles()] Does the file {}/{} exist? [{}]", renderer::Zoom::ZoomToString(zoomId), BshFile::BshFileNameIdToString(bshFileId), result);
+            Log::SG_LOG_INFO("[Files::CheckForBshFiles()] Does the file {}/{} exist? [{}]", magic_enum::enum_name(zoomId), BshFile::BshFileNameIdToString(bshFileId), result);
         }
     }
 

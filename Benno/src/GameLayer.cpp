@@ -1,3 +1,4 @@
+#include <magic_enum.hpp>
 #include "GameLayer.h"
 #include "Game.h"
 #include "Input.h"
@@ -26,9 +27,23 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 // Getter
 //-------------------------------------------------
 
+sg::renderer::Zoom* sg::GameLayer::GetCurrentZoom() const noexcept
+{
+    return m_currentZoom;
+}
+
 std::shared_ptr<sg::renderer::MeshRenderer> sg::GameLayer::GetMeshRenderer() const noexcept
 {
     return m_meshRenderer;
+}
+
+//-------------------------------------------------
+// Setter
+//-------------------------------------------------
+
+void sg::GameLayer::SetCurrentZoom(const renderer::Zoom::ZoomId t_zoomId)
+{
+    m_currentZoom = m_parentGame->GetZoomFactory().GetZooms()[magic_enum::enum_integer(t_zoomId)].get();
 }
 
 //-------------------------------------------------
@@ -37,6 +52,8 @@ std::shared_ptr<sg::renderer::MeshRenderer> sg::GameLayer::GetMeshRenderer() con
 
 void sg::GameLayer::OnCreate()
 {
+    SetCurrentZoom(m_parentGame->gameOptions.initialZoomId);
+
     m_camera = std::make_unique<camera::OrthographicCamera>(this);
     m_camera->SetPosition(glm::vec2(0.0f, 0.0f));
     m_camera->SetCameraVelocity(1000.0f);
@@ -46,7 +63,7 @@ void sg::GameLayer::OnCreate()
     m_paletteFile = std::make_unique<file::PaletteFile>(m_parentGame->GetFiles().GetColFile().path);
     m_paletteFile->ReadContentFromChunkData();
 
-    auto stadtfld{ m_parentGame->GetFiles().GetBshFile(m_parentGame->gameOptions.currentZoom.GetZoomId(), file::BshFile::BshFileNameId::STADTFLD).value() };
+    auto stadtfld{ m_parentGame->GetFiles().GetBshFile(m_currentZoom->GetZoomId(), file::BshFile::BshFileNameId::STADTFLD).value() };
     m_bshFile = std::make_shared<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
@@ -56,8 +73,7 @@ void sg::GameLayer::OnCreate()
         this,
         "res/savegame/game01.gam",
         m_bshFile,
-        m_housesJsonFile,
-        m_parentGame->gameOptions.currentZoom
+        m_housesJsonFile
         );
     m_gamFile->ReadContentFromChunkData();
 
@@ -84,7 +100,7 @@ void sg::GameLayer::OnGuiRender()
 {
     ImGui::Begin("GameLayer Debug");
 
-    ImGui::Text("Press the WASD keys to move the camera.");
+    ImGui::Text("Press the WASD or arrow keys to move the camera.");
     ImGui::Spacing();
     ImGui::Text("Camera x: %.1f", m_camera->GetPosition().x);
     ImGui::Text("Camera y: %.1f", m_camera->GetPosition().y);
@@ -102,8 +118,8 @@ void sg::GameLayer::OnGuiRender()
     m_mapPosition = { chunk::TileUtil::ScreenToMap(
         mx,
         my,
-        m_parentGame->gameOptions.currentZoom.GetTileWidth(),
-        m_parentGame->gameOptions.currentZoom.GetTileHeight())
+        m_currentZoom->GetTileWidth(),
+        m_currentZoom->GetTileHeight())
     };
 
     ImGui::Text("Map x: %d", static_cast<int>(m_mapPosition.x));
@@ -113,13 +129,13 @@ void sg::GameLayer::OnGuiRender()
 
     auto modelMatrix{ glm::mat4(1.0f) };
     modelMatrix = translate(modelMatrix, glm::vec3(
-        mx - static_cast<float>(m_parentGame->gameOptions.currentZoom.GetXRaster()),
-        my - static_cast<float>(m_parentGame->gameOptions.currentZoom.GetYRaster()),
+        mx - static_cast<float>(m_currentZoom->GetXRaster()),
+        my - static_cast<float>(m_currentZoom->GetYRaster()),
         0.0f)
     );
     modelMatrix = scale(modelMatrix, glm::vec3(
-        m_parentGame->gameOptions.currentZoom.GetDefaultTileWidth(),
-        m_parentGame->gameOptions.currentZoom.GetDefaultTileHeight(),
+        m_currentZoom->GetDefaultTileWidth(),
+        m_currentZoom->GetDefaultTileHeight(),
         1.0f)
     );
 
@@ -135,7 +151,34 @@ void sg::GameLayer::OnGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Current zoom: %s", renderer::Zoom::ZoomToString(m_parentGame->gameOptions.currentZoom.GetZoomId()).c_str());
+    const auto zoomId{ magic_enum::enum_name(m_currentZoom->GetZoomId()) };
+    ImGui::Text("Current zoom: %s", std::string(zoomId).c_str());
+    ImGui::SameLine(200);
+
+    static const auto* itemCurrent{ renderer::Zoom::zoomMenuItems[0] };
+    if (ImGui::BeginCombo("Change zoom", itemCurrent, 0))
+    {
+        for (auto n{ 0 }; n < IM_ARRAYSIZE(renderer::Zoom::zoomMenuItems); ++n)
+        {
+            const auto isSelected = (itemCurrent == renderer::Zoom::zoomMenuItems[n]);
+
+            if (ImGui::Selectable(renderer::Zoom::zoomMenuItems[n], isSelected))
+            {
+                itemCurrent = renderer::Zoom::zoomMenuItems[n];
+
+                auto current{ magic_enum::enum_cast<renderer::Zoom::ZoomId>(std::string(itemCurrent)) };
+                if (current.has_value())
+                {
+                    SetCurrentZoom(current.value());
+                    // todo: Renderer informieren...
+                }
+            }
+
+            if (isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
 
     ImGui::Separator();
 

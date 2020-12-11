@@ -37,6 +37,11 @@ std::shared_ptr<sg::gl::ShaderManager> sg::Game::GetShaderManager() const noexce
     return m_shaderManager;
 }
 
+const sg::renderer::ZoomFactory& sg::Game::GetZoomFactory() const noexcept
+{
+    return m_zoomFactory;
+}
+
 const sg::file::Files& sg::Game::GetFiles() const noexcept
 {
     return m_files;

@@ -2,6 +2,7 @@
 #include "DeepWaterRenderer.h"
 #include "Log.h"
 #include "OpenGL.h"
+#include "SgException.h"
 #include "Zoom.h"
 #include "gl/Texture.h"
 #include "gl/Shader.h"

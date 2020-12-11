@@ -19,7 +19,7 @@ namespace sg::file
 
     struct BennoZoomableBshFile : BennoFile
     {
-        renderer::Zoom::ZoomId zoomId{ renderer::Zoom::ZoomId::NOT_ZOOMABLE };
+        renderer::Zoom::ZoomId zoomId{ renderer::Zoom::ZoomId::GFX };
         BshFile::BshFileNameId bshFileNameId{ BshFile::BshFileNameId::INVALID };
     };
 

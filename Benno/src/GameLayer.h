@@ -3,6 +3,7 @@
 #include <memory>
 #include <glm/vec2.hpp>
 #include "Layer.h"
+#include "renderer/Zoom.h"
 
 namespace sg::renderer
 {
@@ -52,7 +53,14 @@ namespace sg
         // Getter
         //-------------------------------------------------
 
+        [[nodiscard]] renderer::Zoom* GetCurrentZoom() const noexcept;
         [[nodiscard]] std::shared_ptr<renderer::MeshRenderer> GetMeshRenderer() const noexcept;
+
+        //-------------------------------------------------
+        // Setter
+        //-------------------------------------------------
+
+        void SetCurrentZoom(renderer::Zoom::ZoomId t_zoomId);
 
         //-------------------------------------------------
         // Override
@@ -70,6 +78,8 @@ namespace sg
     protected:
 
     private:
+        renderer::Zoom* m_currentZoom{ nullptr };
+
         std::unique_ptr<camera::OrthographicCamera> m_camera;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
         std::unique_ptr<file::PaletteFile> m_paletteFile;

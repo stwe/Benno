@@ -1,7 +1,6 @@
 #pragma once
 
 #include "BinaryFile.h"
-#include "renderer/Zoom.h"
 #include "chunk/TileGraphic.h"
 
 namespace sg
@@ -47,8 +46,7 @@ namespace sg::file
             GameLayer* t_parentLayer,
             const std::string& t_filePath,
             std::shared_ptr<BshFile> t_bshFile,
-            std::shared_ptr<data::HousesJsonFile> t_housesJsonFile,
-            const renderer::Zoom& t_zoom
+            std::shared_ptr<data::HousesJsonFile> t_housesJsonFile
         );
 
         GamFile(const GamFile& t_other) = delete;
@@ -93,7 +91,6 @@ namespace sg::file
         GameLayer* m_parentLayer{ nullptr };
         std::shared_ptr<BshFile> m_bshFile;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
-        renderer::Zoom m_zoom;
 
         std::vector<std::unique_ptr<chunk::Island5>> m_island5List;
 
