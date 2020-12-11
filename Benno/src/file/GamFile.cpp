@@ -6,6 +6,8 @@
 #include "BshTexture.h"
 #include "Input.h"
 #include "Log.h"
+#include "SgAssert.h"
+#include "GameLayer.h"
 #include "data/HousesJsonFile.h"
 #include "chunk/Island5.h"
 #include "chunk/IslandHouse.h"
@@ -23,17 +25,21 @@
 //-------------------------------------------------
 
 sg::file::GamFile::GamFile(
+    GameLayer* t_parentLayer,
     const std::string& t_filePath,
     std::shared_ptr<BshFile> t_bshFile,
     std::shared_ptr<data::HousesJsonFile> t_housesJsonFile,
     const renderer::Zoom& t_zoom
 )
     : BinaryFile(t_filePath)
+    , m_parentLayer{ t_parentLayer }
     , m_bshFile{ std::move(t_bshFile) }
     , m_housesJsonFile{ std::move(t_housesJsonFile) }
     , m_zoom{ t_zoom }
 {
     Log::SG_LOG_DEBUG("[GamFile::GamFile()] Creates GamFile object from file {}.", t_filePath);
+
+    SG_ASSERT(m_parentLayer, "[GamFile::GamFile()] Null pointer.");
 }
 
 sg::file::GamFile::~GamFile()
@@ -97,11 +103,11 @@ void sg::file::GamFile::Render(
             auto aabbModelMatrix{ islandModel->GetAabb().GetModelMatrix() };
             if (intersect)
             {
-                m_meshRenderer->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 1.0f, 0.0f));
+                m_parentLayer->GetMeshRenderer()->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 1.0f, 0.0f));
             }
             else
             {
-                m_meshRenderer->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 0.0f, 0.0f));
+                m_parentLayer->GetMeshRenderer()->Render(aabbModelMatrix, t_camera, glm::vec3(1.0f, 0.0f, 0.0f));
             }
         }
     }
@@ -200,6 +206,7 @@ void sg::file::GamFile::InitDeepWaterArea()
     intensityBuffer.resize(deepWaterGraphicTiles.size(), DARK);
 
     m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(
+        m_parentLayer->GetParentGame()->GetShaderManager(),
         m_bshFile,
         std::move(deepWaterModelMatrices),
         std::move(deepWaterTextureBuffer),
@@ -273,10 +280,10 @@ void sg::file::GamFile::InitIslandsArea()
 
     for (auto& island5 : m_island5List)
     {
-        m_islandModels.emplace_back(std::make_unique<renderer::IslandModel>(m_zoom, island5.get(), m_bshFile));
+        m_islandModels.emplace_back(std::make_unique<renderer::IslandModel>(
+            m_parentLayer->GetParentGame()->GetShaderManager(), m_zoom, island5.get(), m_bshFile)
+        );
     }
-
-    m_meshRenderer = std::make_unique<renderer::MeshRenderer>();
 }
 
 //-------------------------------------------------

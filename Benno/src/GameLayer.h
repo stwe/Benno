@@ -49,6 +49,12 @@ namespace sg
         ~GameLayer() = default;
 
         //-------------------------------------------------
+        // Getter
+        //-------------------------------------------------
+
+        [[nodiscard]] std::shared_ptr<renderer::MeshRenderer> GetMeshRenderer() const noexcept;
+
+        //-------------------------------------------------
         // Override
         //-------------------------------------------------
 
@@ -70,7 +76,7 @@ namespace sg
         std::shared_ptr<file::BshFile> m_bshFile;
         std::unique_ptr<file::GamFile> m_gamFile;
 
-        std::unique_ptr<renderer::MeshRenderer> m_meshRenderer;
+        std::shared_ptr<renderer::MeshRenderer> m_meshRenderer;
         glm::vec2 m_mapPosition{ 0.0f };
 
         int m_info{ 0 };

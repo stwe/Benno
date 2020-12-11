@@ -11,6 +11,7 @@
 #include "chunk/Island5.h"
 #include "chunk/TileUtil.h"
 #include "renderer/MeshRenderer.h"
+#include "gl/ShaderManager.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
@@ -19,6 +20,15 @@
 sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
     : Layer(t_parentGame, t_name)
 {
+}
+
+//-------------------------------------------------
+// Getter
+//-------------------------------------------------
+
+std::shared_ptr<sg::renderer::MeshRenderer> sg::GameLayer::GetMeshRenderer() const noexcept
+{
+    return m_meshRenderer;
 }
 
 //-------------------------------------------------
@@ -40,15 +50,16 @@ void sg::GameLayer::OnCreate()
     m_bshFile = std::make_shared<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
     m_bshFile->ReadContentFromChunkData();
 
+    m_meshRenderer = std::make_shared<renderer::MeshRenderer>(m_parentGame->GetShaderManager());
+
     m_gamFile = std::make_unique<file::GamFile>(
+        this,
         "res/savegame/game01.gam",
         m_bshFile,
         m_housesJsonFile,
         m_parentGame->gameOptions.currentZoom
         );
     m_gamFile->ReadContentFromChunkData();
-
-    m_meshRenderer = std::make_unique<renderer::MeshRenderer>();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }

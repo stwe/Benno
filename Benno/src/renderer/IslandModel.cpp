@@ -12,13 +12,21 @@
 #include "file/BshTexture.h"
 #include "camera/OrthographicCamera.h"
 #include "gl/Texture.h"
+#include "gl/Shader.h"
+#include "gl/ShaderManager.h"
 
 //-------------------------------------------------
 // Ctors. / Dtor.
 //-------------------------------------------------
 
-sg::renderer::IslandModel::IslandModel(Zoom& t_zoom, chunk::Island5* t_parentIsland, std::shared_ptr<file::BshFile> t_bshFile)
-    : m_zoom{ t_zoom }
+sg::renderer::IslandModel::IslandModel(
+    std::shared_ptr<gl::ShaderManager> t_shaderManager,
+    Zoom& t_zoom,
+    chunk::Island5* t_parentIsland,
+    std::shared_ptr<file::BshFile> t_bshFile
+)
+    : m_shaderManager{ std::move(t_shaderManager) }
+    , m_zoom{ t_zoom }
     , m_parentIsland{ t_parentIsland }
     , m_bshFile{ std::move(t_bshFile) }
 {
@@ -38,18 +46,19 @@ sg::renderer::IslandModel::~IslandModel()
 // Render
 //-------------------------------------------------
 
-void sg::renderer::IslandModel::Render(const camera::OrthographicCamera& t_camera)
+void sg::renderer::IslandModel::Render(const camera::OrthographicCamera& t_camera) const
 {
     OpenGL::EnableAlphaBlending();
 
-    m_shader.Bind();
+    auto& shader{ m_shaderManager->GetShader("islands") };
+    shader.Bind();
     glBindVertexArray(m_vaoId);
 
     gl::Texture::BindForReading(m_textureArrayId, GL_TEXTURE0, GL_TEXTURE_2D_ARRAY);
 
-    m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
-    m_shader.SetUniform("sampler", 0);
-    m_shader.SetUniform("maxY", static_cast<float>(m_bshFile->GetMaxY()));
+    shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
+    shader.SetUniform("sampler", 0);
+    shader.SetUniform("maxY", static_cast<float>(m_bshFile->GetMaxY()));
 
     glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, m_instances);
 
@@ -260,11 +269,12 @@ void sg::renderer::IslandModel::CreateAabb()
 // Shader
 //-------------------------------------------------
 
-void sg::renderer::IslandModel::InitShader()
+void sg::renderer::IslandModel::InitShader() const
 {
-    m_shader.AddUniform("viewProjection");
-    m_shader.AddUniform("sampler");
-    m_shader.AddUniform("maxY");
+    auto& shader{ m_shaderManager->GetShader("islands") };
+    shader.AddUniform("viewProjection");
+    shader.AddUniform("sampler");
+    shader.AddUniform("maxY");
 }
 
 //-------------------------------------------------

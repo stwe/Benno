@@ -4,6 +4,8 @@
 #include "OpenGL.h"
 #include "Zoom.h"
 #include "gl/Texture.h"
+#include "gl/Shader.h"
+#include "gl/ShaderManager.h"
 #include "file/BshFile.h"
 #include "file/BshTexture.h"
 #include "camera/OrthographicCamera.h"
@@ -13,12 +15,14 @@
 //-------------------------------------------------
 
 sg::renderer::DeepWaterRenderer::DeepWaterRenderer(
+    std::shared_ptr<gl::ShaderManager> t_shaderManager,
     std::shared_ptr<file::BshFile> t_bshFile,
     std::vector<glm::mat4>&& t_deepWaterModelMatrices,
     std::vector<int>&& t_deepWaterTextureBuffer,
     std::vector<glm::vec3>&& t_intensityBuffer
 )
-    : m_bshFile{ std::move(t_bshFile) }
+    : m_shaderManager{ std::move(t_shaderManager) }
+    , m_bshFile{ std::move(t_bshFile) }
     , m_deepWaterModelMatrices{ std::move(t_deepWaterModelMatrices) }
     , m_deepWaterTextureBuffer{ std::move(t_deepWaterTextureBuffer) }
     , m_intensityBuffer{ std::move(t_intensityBuffer) }
@@ -37,8 +41,9 @@ sg::renderer::DeepWaterRenderer::~DeepWaterRenderer()
 
 void sg::renderer::DeepWaterRenderer::Init(const Zoom& t_zoom)
 {
-    m_shader.AddUniform("viewProjection");
-    m_shader.AddUniform("sampler");
+    auto& shader{ m_shaderManager->GetShader("deepWater") };
+    shader.AddUniform("viewProjection");
+    shader.AddUniform("sampler");
 
     m_textureWidth = t_zoom.GetDefaultTileWidth();
     m_textureHeight = t_zoom.GetDefaultTileHeight();
@@ -62,13 +67,14 @@ void sg::renderer::DeepWaterRenderer::Render(const camera::OrthographicCamera& t
 {
     !t_wireframe ? OpenGL::EnableAlphaBlending() : OpenGL::EnableWireframeMode();
 
-    m_shader.Bind();
+    auto& shader{ m_shaderManager->GetShader("deepWater") };
+    shader.Bind();
     glBindVertexArray(m_vaoId);
 
     gl::Texture::BindForReading(m_textureArrayId, GL_TEXTURE0, GL_TEXTURE_2D_ARRAY);
 
-    m_shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
-    m_shader.SetUniform("sampler", 0);
+    shader.SetUniform("viewProjection", t_camera.GetViewProjectionMatrix());
+    shader.SetUniform("sampler", 0);
 
     glDrawArraysInstanced(GL_TRIANGLES, 0, DRAW_COUNT, m_instances);
 

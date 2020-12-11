@@ -6,6 +6,7 @@
 #include "Layer.h"
 #include "Log.h"
 #include "GameLayer.h"
+#include "gl/ShaderManager.h"
 #include "vendor/imgui/imgui.h"
 
 //-------------------------------------------------
@@ -23,12 +24,17 @@ sg::Game::~Game()
 }
 
 //-------------------------------------------------
-// Getter / read-only
+// Getter
 //-------------------------------------------------
 
 const sg::Window& sg::Game::GetWindow() const noexcept
 {
     return *m_window;
+}
+
+std::shared_ptr<sg::gl::ShaderManager> sg::Game::GetShaderManager() const noexcept
+{
+    return m_shaderManager;
 }
 
 const sg::file::Files& sg::Game::GetFiles() const noexcept
@@ -56,6 +62,12 @@ void sg::Game::Init()
 {
     m_window = std::make_unique<Window>(this);
     m_window->Init();
+
+    m_shaderManager = std::make_unique<gl::ShaderManager>();
+    m_shaderManager->AddShader("mesh");
+    m_shaderManager->AddShader("aabb");
+    m_shaderManager->AddShader("islands");
+    m_shaderManager->AddShader("deepWater");
 
     AddLayer(new GameLayer(this, "GameScreen"));
 }

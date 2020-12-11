@@ -6,7 +6,11 @@
 #include "Zoom.h"
 #include "chunk/TileGraphic.h"
 #include "physics/Aabb.h"
-#include "gl/Shader.h"
+
+namespace sg::gl
+{
+    class ShaderManager;
+}
 
 namespace sg::camera
 {
@@ -32,7 +36,12 @@ namespace sg::renderer
         // Ctors. / Dtor.
         //-------------------------------------------------
 
-        IslandModel(Zoom& t_zoom, chunk::Island5* t_parentIsland, std::shared_ptr<file::BshFile> t_bshFile);
+        IslandModel(
+            std::shared_ptr<gl::ShaderManager> t_shaderManager,
+            Zoom& t_zoom,
+            chunk::Island5* t_parentIsland,
+            std::shared_ptr<file::BshFile> t_bshFile
+        );
 
         IslandModel(const IslandModel& t_other) = delete;
         IslandModel(IslandModel&& t_other) noexcept = delete;
@@ -45,7 +54,7 @@ namespace sg::renderer
         // Render
         //-------------------------------------------------
 
-        void Render(const camera::OrthographicCamera& t_camera);
+        void Render(const camera::OrthographicCamera& t_camera) const;
 
         //-------------------------------------------------
         // Update Vbo
@@ -77,6 +86,8 @@ namespace sg::renderer
         static constexpr auto DARK{ glm::vec3(0.1f) };
         static constexpr auto NO_ISLAND{ -1 };
 
+        std::shared_ptr<gl::ShaderManager> m_shaderManager;
+
         Zoom m_zoom;
         chunk::Island5* m_parentIsland{ nullptr };
         std::shared_ptr<file::BshFile> m_bshFile;
@@ -89,7 +100,6 @@ namespace sg::renderer
         std::vector<glm::vec3> m_intensityBuffer;
 
         uint32_t m_vaoId{ 0 };
-        gl::Shader m_shader{ "res/shader/islands/Vertex.vert", "res/shader/islands/Fragment.frag" };
         uint32_t m_textureArrayId{ 0 };
         uint32_t m_instances{ 0 };
         uint32_t m_intensityVboId{ 0 };
@@ -122,7 +132,7 @@ namespace sg::renderer
         // Shader
         //-------------------------------------------------
 
-        void InitShader();
+        void InitShader() const;
 
         //-------------------------------------------------
         // Mesh

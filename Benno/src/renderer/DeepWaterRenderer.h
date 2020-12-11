@@ -4,7 +4,11 @@
 #include <glm/vec3.hpp>
 #include <memory>
 #include <vector>
-#include "gl/Shader.h"
+
+namespace sg::gl
+{
+    class ShaderManager;
+}
 
 namespace sg::camera
 {
@@ -32,6 +36,7 @@ namespace sg::renderer
         DeepWaterRenderer() = delete;
 
         DeepWaterRenderer(
+            std::shared_ptr<gl::ShaderManager> t_shaderManager,
             std::shared_ptr<file::BshFile> t_bshFile,
             std::vector<glm::mat4>&& t_deepWaterModelMatrices,
             std::vector<int>&& t_deepWaterTextureBuffer,
@@ -71,13 +76,13 @@ namespace sg::renderer
         static constexpr auto LAYER_COUNT{ 12 };
         static constexpr auto END_GFX_INDEX{ 769 };
 
+        std::shared_ptr<gl::ShaderManager> m_shaderManager;
         std::shared_ptr<file::BshFile> m_bshFile;
         std::vector<glm::mat4> m_deepWaterModelMatrices;
         std::vector<int> m_deepWaterTextureBuffer;
         std::vector<glm::vec3> m_intensityBuffer;
 
         uint32_t m_vaoId{ 0 };
-        gl::Shader m_shader{ "res/shader/deepWater/Vertex.vert", "res/shader/deepWater/Fragment.frag" };
         uint32_t m_textureArrayId{ 0 };
         uint32_t m_instances{ 0 };
         uint32_t m_intensityVboId{ 0 };

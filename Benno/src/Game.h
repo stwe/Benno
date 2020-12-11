@@ -8,6 +8,11 @@
 
 union SDL_Event;
 
+namespace sg::gl
+{
+    class ShaderManager;
+}
+
 namespace sg
 {
     class Window;
@@ -45,10 +50,11 @@ namespace sg
         ~Game();
 
         //-------------------------------------------------
-        // Getter / read-only
+        // Getter
         //-------------------------------------------------
 
         [[nodiscard]] const Window& GetWindow() const noexcept;
+        [[nodiscard]] std::shared_ptr<gl::ShaderManager> GetShaderManager() const noexcept;
         [[nodiscard]] const file::Files& GetFiles() const noexcept;
 
         //-------------------------------------------------
@@ -63,6 +69,7 @@ namespace sg
         static constexpr std::chrono::nanoseconds TIMESTEP{ 16ms };
 
         std::unique_ptr<Window> m_window;
+        std::shared_ptr<gl::ShaderManager> m_shaderManager;
         LayerList m_layerList;
         file::Files m_files{ gameOptions.resourcePath };
 

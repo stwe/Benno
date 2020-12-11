@@ -4,6 +4,11 @@
 #include "renderer/Zoom.h"
 #include "chunk/TileGraphic.h"
 
+namespace sg
+{
+    class GameLayer;
+}
+
 namespace sg::camera
 {
     class OrthographicCamera;
@@ -13,7 +18,6 @@ namespace sg::renderer
 {
     class DeepWaterRenderer;
     class IslandModel;
-    class MeshRenderer;
 }
 
 namespace sg::chunk
@@ -40,6 +44,7 @@ namespace sg::file
         GamFile() = delete;
 
         GamFile(
+            GameLayer* t_parentLayer,
             const std::string& t_filePath,
             std::shared_ptr<BshFile> t_bshFile,
             std::shared_ptr<data::HousesJsonFile> t_housesJsonFile,
@@ -85,6 +90,7 @@ namespace sg::file
         static constexpr auto NO_DEEP_WATER{ -1 };
         static constexpr auto NO_ISLAND{ -1 };
 
+        GameLayer* m_parentLayer{ nullptr };
         std::shared_ptr<BshFile> m_bshFile;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
         renderer::Zoom m_zoom;
@@ -92,8 +98,6 @@ namespace sg::file
         std::vector<std::unique_ptr<chunk::Island5>> m_island5List;
 
         std::unique_ptr<renderer::DeepWaterRenderer> m_deepWaterRenderer;
-        std::unique_ptr<renderer::MeshRenderer> m_meshRenderer;
-
         std::vector<std::unique_ptr<renderer::IslandModel>> m_islandModels;
 
         std::vector<int> m_deepWaterIndex;

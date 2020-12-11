@@ -1,17 +1,17 @@
 #pragma once
 
+#include <memory>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-#include "gl/Shader.h"
+
+namespace sg::gl
+{
+    class ShaderManager;
+}
 
 namespace sg::camera
 {
     class OrthographicCamera;
-}
-
-namespace sg::file
-{
-    struct BshTexture;
 }
 
 namespace sg::renderer
@@ -23,7 +23,7 @@ namespace sg::renderer
         // Ctors. / Dtor.
         //-------------------------------------------------
 
-        MeshRenderer();
+        explicit MeshRenderer(std::shared_ptr<gl::ShaderManager> t_shaderManager);
 
         MeshRenderer(const MeshRenderer& t_other) = delete;
         MeshRenderer(MeshRenderer&& t_other) noexcept = delete;
@@ -40,22 +40,24 @@ namespace sg::renderer
             glm::mat4& t_modelMatrix,
             uint32_t t_bshTextureId,
             const camera::OrthographicCamera& t_camera
-        );
+        ) const;
 
-        void Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera, const glm::vec3& t_color);
+        void Render(glm::mat4& t_modelMatrix, const camera::OrthographicCamera& t_camera, const glm::vec3& t_color) const;
 
     protected:
 
     private:
-        uint32_t m_vao{ 0 };
+        std::shared_ptr<gl::ShaderManager> m_shaderManager;
 
-        gl::Shader m_meshShader{ "res/shader/mesh/Vertex.vert", "res/shader/mesh/Fragment.frag" };
-        gl::Shader m_aabbShader{ "res/shader/aabb/Vertex.vert", "res/shader/aabb/Fragment.frag" };
+        uint32_t m_vao{ 0 };
 
         //-------------------------------------------------
         // Init
         //-------------------------------------------------
 
         void Init();
+
+        void InitMeshShader() const;
+        void InitAabbShader() const;
     };
 }
