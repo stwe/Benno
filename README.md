@@ -2,6 +2,7 @@
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/e702220c4290499091156333bcecf168)](https://www.codacy.com/gh/stwe/Benno/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=stwe/Benno&amp;utm_campaign=Badge_Grade)
 [![Build Status](https://travis-ci.org/stwe/Benno.svg?branch=master)](https://travis-ci.org/stwe/Benno)
+[![License: GPL v2](https://img.shields.io/badge/license-GPL--2.0-green)](https://github.com/stwe/Benno/blob/master/LICENSE)
 
 <img src="https://github.com/stwe/Benno/blob/master/Benno/res/devLog/20112020.png" width="250" height="200" />
 
@@ -20,6 +21,7 @@ The project works with Anno 1602:
 - [spdlog](https://github.com/gabime/spdlog)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [nlohmann_json](https://github.com/nlohmann/json)
+- [Magic Enum C++](https://github.com/Neargye/magic_enum)
 - C++ 17 Compiler
 
 ## Platforms
@@ -54,6 +56,7 @@ glm/0.9.9.8
 spdlog/1.8.0
 imgui/1.79
 nlohmann_json/3.9.1
+magic_enum/0.7.1
 
 [generators]
 premake

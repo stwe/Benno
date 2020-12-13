@@ -169,6 +169,27 @@ void sg::file::GamFile::ReadContentFromChunkData()
 }
 
 //-------------------------------------------------
+// Helper
+//-------------------------------------------------
+
+sg::chunk::Island5* sg::file::GamFile::IsIslandOnPosition(const int t_x, const int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List)
+{
+    for (const auto& island5 : t_island5List)
+    {
+        if (t_x >= island5->GetIsland5Data().posx &&
+            t_y >= island5->GetIsland5Data().posy &&
+            t_x < island5->GetIsland5Data().posx + island5->GetIsland5Data().width &&
+            t_y < island5->GetIsland5Data().posy + island5->GetIsland5Data().height
+            )
+        {
+            return island5.get();
+        }
+    }
+
+    return nullptr;
+}
+
+//-------------------------------------------------
 // Island5 Layer
 //-------------------------------------------------
 
@@ -284,25 +305,4 @@ void sg::file::GamFile::InitIslandsArea()
             m_parentLayer->GetParentGame()->GetShaderManager(), m_zoom, island5.get(), m_stadtfldFile)
         );
     }
-}
-
-//-------------------------------------------------
-// Helper
-//-------------------------------------------------
-
-sg::chunk::Island5* sg::file::GamFile::IsIslandOnPosition(const int t_x, const int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List)
-{
-    for (const auto& island5 : t_island5List)
-    {
-        if (t_x >= island5->GetIsland5Data().posx &&
-            t_y >= island5->GetIsland5Data().posy &&
-            t_x < island5->GetIsland5Data().posx + island5->GetIsland5Data().width &&
-            t_y < island5->GetIsland5Data().posy + island5->GetIsland5Data().height
-            )
-        {
-            return island5.get();
-        }
-    }
-
-    return nullptr;
 }

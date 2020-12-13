@@ -34,7 +34,7 @@ namespace sg
         //-------------------------------------------------
 
         WindowOptions windowOptions{};
-        ProjectionOptions projectionOptions{};
+        const ProjectionOptions projectionOptions{};
         const GameOptions gameOptions{};
 
         //-------------------------------------------------

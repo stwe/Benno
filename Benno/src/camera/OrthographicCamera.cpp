@@ -44,6 +44,11 @@ const glm::vec2& sg::camera::OrthographicCamera::GetPosition() const noexcept
     return m_position;
 }
 
+float& sg::camera::OrthographicCamera::GetCameraVelocity() noexcept
+{
+    return m_cameraVelocity;
+}
+
 glm::mat4 sg::camera::OrthographicCamera::GetViewMatrix() const noexcept
 {
     auto transformMatrix{ glm::mat4(1.0f) };

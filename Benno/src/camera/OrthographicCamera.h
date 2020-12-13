@@ -38,6 +38,7 @@ namespace sg::camera
 
         glm::vec2& GetPosition() noexcept;
         [[nodiscard]] const glm::vec2& GetPosition() const noexcept;
+        float& GetCameraVelocity() noexcept;
         [[nodiscard]] glm::mat4 GetViewMatrix() const noexcept;
         [[nodiscard]] glm::mat4 GetViewProjectionMatrix() const noexcept;
 

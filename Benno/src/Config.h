@@ -12,13 +12,13 @@ namespace sg
     struct WindowOptions
     {
         std::string title{ "BennoSandbox" };
-        bool compatibleProfile{ false };
-        bool debugContext{ true };
-        bool antialiasing{ true };
+        const bool compatibleProfile{ false };
+        const bool debugContext{ true };
+        const bool antialiasing{ true };
         bool printFrameRate{ true };
-        int glMajor{ 3 };
-        int glMinor{ 3 };
-        bool vSync{ false };
+        const int glMajor{ 3 };
+        const int glMinor{ 3 };
+        const bool vSync{ false };
     };
 
     //-------------------------------------------------
@@ -27,11 +27,11 @@ namespace sg
 
     struct ProjectionOptions
     {
-        float fovDeg{ 70.0f };
-        int width{ 1024 };
-        int height{ 768 };
-        float nearPlane{ 0.1f };
-        float farPlane{ 5000.0f };
+        const float fovDeg{ 70.0f };
+        const int width{ 1280 };
+        const int height{ 1024 };
+        const float nearPlane{ 0.1f };
+        const float farPlane{ 5000.0f };
     };
 
     //-------------------------------------------------

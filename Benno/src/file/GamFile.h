@@ -82,11 +82,17 @@ namespace sg::file
 
         void ReadContentFromChunkData() override;
 
+        //-------------------------------------------------
+        // Helper
+        //-------------------------------------------------
+
+        static chunk::Island5* IsIslandOnPosition(int t_x, int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List);
+
     protected:
 
     private:
-        static constexpr auto DARK{ glm::vec3(0.4f) };
-        static constexpr auto BRIGHT{ glm::vec3(1.0f) };
+        static constexpr auto DARK{ glm::vec3(1.0f) };
+        static constexpr auto BRIGHT{ glm::vec3(2.0f, 2.0f, 1.0f) };
         static constexpr auto NO_DEEP_WATER{ -1 };
         static constexpr auto NO_ISLAND{ -1 };
 
@@ -121,11 +127,5 @@ namespace sg::file
         //-------------------------------------------------
 
         void InitIslandsArea();
-
-        //-------------------------------------------------
-        // Helper
-        //-------------------------------------------------
-
-        static chunk::Island5* IsIslandOnPosition(int t_x, int t_y, const std::vector<std::unique_ptr<chunk::Island5>>& t_island5List);
     };
 }

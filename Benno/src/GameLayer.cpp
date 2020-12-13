@@ -2,6 +2,7 @@
 #include "GameLayer.h"
 #include "Game.h"
 #include "Input.h"
+#include "Log.h"
 #include "OpenGL.h"
 #include "camera/OrthographicCamera.h"
 #include "vendor/imgui/imgui.h"
@@ -113,6 +114,8 @@ void sg::GameLayer::OnGuiRender()
     ImGui::Text("Camera x: %.1f", m_camera->GetPosition().x);
     ImGui::Text("Camera y: %.1f", m_camera->GetPosition().y);
 
+    //ImGui::SliderFloat("Camera velocity: ", &m_camera->GetCameraVelocity(), 1000.0f, 10000.0f, "%.1f");
+
 
 
 
@@ -130,6 +133,24 @@ void sg::GameLayer::OnGuiRender()
         m_currentZoom.GetTileHeight())
     };
 
+    m_onIsland = false;
+
+    auto& gam{ m_gamFiles.at(m_currentZoom.GetZoomId()) };
+    if (gam->IsIslandOnPosition(m_mapPosition.x, m_mapPosition.y, gam->GetIsland5List()))
+    {
+        m_mapPosition = { chunk::TileUtil::IslandScreenToMap(
+            mx,
+            my,
+            m_currentZoom.GetTileWidth(),
+            m_currentZoom.GetTileHeight())
+        };
+
+        m_onIsland = true;
+    }
+
+    ImGui::Separator();
+
+    m_onIsland ? ImGui::Text("Island") : ImGui::Text("Deep water");
     ImGui::Text("Map x: %d", static_cast<int>(m_mapPosition.x));
     ImGui::Text("Map y: %d", static_cast<int>(m_mapPosition.y));
 
@@ -149,7 +170,7 @@ void sg::GameLayer::OnGuiRender()
 
     if (m_mapPosition.x >= 0 && m_mapPosition.y >= 0)
     {
-        m_meshRenderer->Render(modelMatrix, *m_camera, glm::vec3(0.0f, 0.0f, 1.0f));
+        m_meshRenderer->Render(modelMatrix, *m_camera, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -92,5 +92,6 @@ namespace sg
 
         int m_info{ 0 };
         bool m_renderIslandAabbs{ false };
+        bool m_onIsland{ false };
     };
 }
