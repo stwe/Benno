@@ -12,9 +12,6 @@ namespace sg::file
     {
         std::string fullFilename;
         std::string path;
-
-        BennoFile() = default;
-        virtual ~BennoFile() = default;
     };
 
     struct BennoZoomableBshFile : BennoFile

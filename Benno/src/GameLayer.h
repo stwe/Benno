@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <glm/vec2.hpp>
 #include "Layer.h"
 #include "renderer/Zoom.h"
@@ -53,7 +54,7 @@ namespace sg
         // Getter
         //-------------------------------------------------
 
-        [[nodiscard]] renderer::Zoom* GetCurrentZoom() const noexcept;
+        [[nodiscard]] const renderer::Zoom& GetCurrentZoom() const noexcept;
         [[nodiscard]] std::shared_ptr<renderer::MeshRenderer> GetMeshRenderer() const noexcept;
 
         //-------------------------------------------------
@@ -78,18 +79,18 @@ namespace sg
     protected:
 
     private:
-        renderer::Zoom* m_currentZoom{ nullptr };
+        renderer::Zoom m_currentZoom{};
 
         std::unique_ptr<camera::OrthographicCamera> m_camera;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
         std::unique_ptr<file::PaletteFile> m_paletteFile;
-        std::shared_ptr<file::BshFile> m_bshFile;
-        std::unique_ptr<file::GamFile> m_gamFile;
+        std::unordered_map<renderer::Zoom::ZoomId, std::shared_ptr<file::BshFile>> m_stadtfldFiles;
+        std::unordered_map<renderer::Zoom::ZoomId, std::unique_ptr<file::GamFile>> m_gamFiles;
 
         std::shared_ptr<renderer::MeshRenderer> m_meshRenderer;
         glm::vec2 m_mapPosition{ 0.0f };
 
         int m_info{ 0 };
-        bool m_renderIslandAabbs{ true };
+        bool m_renderIslandAabbs{ false };
     };
 }

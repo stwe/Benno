@@ -40,11 +40,13 @@ namespace sg
 
     struct GameOptions
     {
-        renderer::Zoom::ZoomId initialZoomId{ renderer::Zoom::ZoomId::GFX };
+        const renderer::Zoom::ZoomId initialZoomId{ renderer::Zoom::ZoomId::GFX };
+        const std::string housesJsonFilePath{ "res/data/houses.json" };
+
 #if defined(_WIN64)
-        std::string resourcePath{ "E:\\Anno" };
+        const std::string resourcePath{ "E:\\Anno" };
 #elif defined(__linux__) && defined(__GNUC__) && (__GNUC__ >= 8)
-        std::string resourcePath{ "/home/steffen/Anno" };
+        const std::string resourcePath{ "/home/steffen/Anno" };
 #else
         #error Unsupported platform or compiler!
 #endif

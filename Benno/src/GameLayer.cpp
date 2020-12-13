@@ -27,7 +27,7 @@ sg::GameLayer::GameLayer(Game* t_parentGame, const std::string& t_name)
 // Getter
 //-------------------------------------------------
 
-sg::renderer::Zoom* sg::GameLayer::GetCurrentZoom() const noexcept
+const sg::renderer::Zoom& sg::GameLayer::GetCurrentZoom() const noexcept
 {
     return m_currentZoom;
 }
@@ -43,7 +43,7 @@ std::shared_ptr<sg::renderer::MeshRenderer> sg::GameLayer::GetMeshRenderer() con
 
 void sg::GameLayer::SetCurrentZoom(const renderer::Zoom::ZoomId t_zoomId)
 {
-    m_currentZoom = m_parentGame->GetZoomFactory().GetZooms()[magic_enum::enum_integer(t_zoomId)].get();
+    m_currentZoom = m_parentGame->GetZoomFactory().GetZooms().at(t_zoomId);
 }
 
 //-------------------------------------------------
@@ -58,24 +58,32 @@ void sg::GameLayer::OnCreate()
     m_camera->SetPosition(glm::vec2(0.0f, 0.0f));
     m_camera->SetCameraVelocity(1000.0f);
 
-    m_housesJsonFile = std::make_shared<data::HousesJsonFile>("res/data/houses.json");
+    m_housesJsonFile = std::make_shared<data::HousesJsonFile>(m_parentGame->gameOptions.housesJsonFilePath);
 
     m_paletteFile = std::make_unique<file::PaletteFile>(m_parentGame->GetFiles().GetColFile().path);
     m_paletteFile->ReadContentFromChunkData();
 
-    auto stadtfld{ m_parentGame->GetFiles().GetBshFile(m_currentZoom->GetZoomId(), file::BshFile::BshFileNameId::STADTFLD).value() };
-    m_bshFile = std::make_shared<file::BshFile>(stadtfld.path, m_paletteFile->GetPalette());
-    m_bshFile->ReadContentFromChunkData();
+    for (const auto& zoomId : magic_enum::enum_values<renderer::Zoom::ZoomId>())
+    {
+        auto stadtfldFile{ std::make_unique<file::BshFile>(
+            m_parentGame->GetFiles().GetBshFile(zoomId, file::BshFile::BshFileNameId::STADTFLD).value().path, m_paletteFile->GetPalette())
+        };
+        stadtfldFile->ReadContentFromChunkData();
+        m_stadtfldFiles.emplace(zoomId, std::move(stadtfldFile));
+
+        auto gamFile{ std::make_unique<file::GamFile>(
+            this,
+            "res/savegame/game01.gam",
+            m_stadtfldFiles.at(zoomId),
+            m_housesJsonFile,
+            m_parentGame->GetZoomFactory().GetZooms().at(zoomId)
+            )
+        };
+        gamFile->ReadContentFromChunkData();
+        m_gamFiles.emplace(zoomId, std::move(gamFile));
+    }
 
     m_meshRenderer = std::make_shared<renderer::MeshRenderer>(m_parentGame->GetShaderManager());
-
-    m_gamFile = std::make_unique<file::GamFile>(
-        this,
-        "res/savegame/game01.gam",
-        m_bshFile,
-        m_housesJsonFile
-        );
-    m_gamFile->ReadContentFromChunkData();
 
     OpenGL::SetClearColor(0.4f, 0.4f, 0.7f);
 }
@@ -86,14 +94,14 @@ void sg::GameLayer::OnDestruct()
 
 void sg::GameLayer::OnUpdate()
 {
-    m_gamFile->Update(static_cast<int>(m_mapPosition.x), static_cast<int>(m_mapPosition.y));
+    m_gamFiles.at(m_currentZoom.GetZoomId())->Update(static_cast<int>(m_mapPosition.x), static_cast<int>(m_mapPosition.y));
 }
 
 void sg::GameLayer::OnRender()
 {
     OpenGL::Clear();
 
-    m_gamFile->Render(*m_camera, m_info, m_renderIslandAabbs);
+    m_gamFiles.at(m_currentZoom.GetZoomId())->Render(*m_camera, m_info, m_renderIslandAabbs);
 }
 
 void sg::GameLayer::OnGuiRender()
@@ -118,8 +126,8 @@ void sg::GameLayer::OnGuiRender()
     m_mapPosition = { chunk::TileUtil::ScreenToMap(
         mx,
         my,
-        m_currentZoom->GetTileWidth(),
-        m_currentZoom->GetTileHeight())
+        m_currentZoom.GetTileWidth(),
+        m_currentZoom.GetTileHeight())
     };
 
     ImGui::Text("Map x: %d", static_cast<int>(m_mapPosition.x));
@@ -129,13 +137,13 @@ void sg::GameLayer::OnGuiRender()
 
     auto modelMatrix{ glm::mat4(1.0f) };
     modelMatrix = translate(modelMatrix, glm::vec3(
-        mx - static_cast<float>(m_currentZoom->GetXRaster()),
-        my - static_cast<float>(m_currentZoom->GetYRaster()),
+        mx - static_cast<float>(m_currentZoom.GetXRaster()),
+        my - static_cast<float>(m_currentZoom.GetYRaster()),
         0.0f)
     );
     modelMatrix = scale(modelMatrix, glm::vec3(
-        m_currentZoom->GetDefaultTileWidth(),
-        m_currentZoom->GetDefaultTileHeight(),
+        m_currentZoom.GetDefaultTileWidth(),
+        m_currentZoom.GetDefaultTileHeight(),
         1.0f)
     );
 
@@ -151,11 +159,12 @@ void sg::GameLayer::OnGuiRender()
 
     ImGui::Separator();
 
-    const auto zoomId{ magic_enum::enum_name(m_currentZoom->GetZoomId()) };
+    const auto zoomId{ magic_enum::enum_name(m_currentZoom.GetZoomId()) };
     ImGui::Text("Current zoom: %s", std::string(zoomId).c_str());
     ImGui::SameLine(200);
 
-    static const auto* itemCurrent{ renderer::Zoom::zoomMenuItems[0] };
+    static const auto* itemCurrent{ renderer::Zoom::zoomMenuItems[magic_enum::enum_integer(m_currentZoom.GetZoomId())] };
+
     if (ImGui::BeginCombo("Change zoom", itemCurrent, 0))
     {
         for (auto n{ 0 }; n < IM_ARRAYSIZE(renderer::Zoom::zoomMenuItems); ++n)
@@ -170,7 +179,6 @@ void sg::GameLayer::OnGuiRender()
                 if (current.has_value())
                 {
                     SetCurrentZoom(current.value());
-                    // todo: Renderer informieren...
                 }
             }
 
@@ -182,7 +190,7 @@ void sg::GameLayer::OnGuiRender()
 
     ImGui::Separator();
 
-    ImGui::Text("Render Islands: %d/%d", static_cast<int>(m_gamFile->GetIsland5List().size()) - m_info, static_cast<int>(m_gamFile->GetIsland5List().size()));
+    ImGui::Text("Render Islands: %d/%d", static_cast<int>(m_gamFiles.at(m_currentZoom.GetZoomId())->GetIsland5List().size()) - m_info, static_cast<int>(m_gamFiles.at(m_currentZoom.GetZoomId())->GetIsland5List().size()));
     ImGui::SameLine(200);
     ImGui::Checkbox("Toggle render Aabbs", &m_renderIslandAabbs);
 
@@ -194,7 +202,7 @@ void sg::GameLayer::OnGuiRender()
 
     ImGui::BeginChild("Islands", ImVec2(150, 0), true);
 
-    for (const auto& island5 : m_gamFile->GetIsland5List())
+    for (const auto& island5 : m_gamFiles.at(m_currentZoom.GetZoomId())->GetIsland5List())
     {
         auto label{ std::string("Island ") + std::to_string(island5->GetIsland5Data().islandNumber) };
 

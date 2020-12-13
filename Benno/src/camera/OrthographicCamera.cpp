@@ -34,12 +34,17 @@ sg::camera::OrthographicCamera::~OrthographicCamera()
 // Getter
 //-------------------------------------------------
 
-glm::vec2& sg::camera::OrthographicCamera::GetPosition()
+glm::vec2& sg::camera::OrthographicCamera::GetPosition() noexcept
 {
     return m_position;
 }
 
-glm::mat4 sg::camera::OrthographicCamera::GetViewMatrix() const
+const glm::vec2& sg::camera::OrthographicCamera::GetPosition() const noexcept
+{
+    return m_position;
+}
+
+glm::mat4 sg::camera::OrthographicCamera::GetViewMatrix() const noexcept
 {
     auto transformMatrix{ glm::mat4(1.0f) };
     transformMatrix = translate(transformMatrix, glm::vec3(m_position.x, m_position.y, 0.0f));
@@ -47,7 +52,7 @@ glm::mat4 sg::camera::OrthographicCamera::GetViewMatrix() const
     return inverse(transformMatrix);
 }
 
-glm::mat4 sg::camera::OrthographicCamera::GetViewProjectionMatrix() const
+glm::mat4 sg::camera::OrthographicCamera::GetViewProjectionMatrix() const noexcept
 {
     return m_parentLayer->GetParentGame()->GetWindow().GetOrthographicProjectionMatrix() * GetViewMatrix();
 }
@@ -56,12 +61,12 @@ glm::mat4 sg::camera::OrthographicCamera::GetViewProjectionMatrix() const
 // Setter
 //-------------------------------------------------
 
-void sg::camera::OrthographicCamera::SetPosition(const glm::vec2& t_position)
+void sg::camera::OrthographicCamera::SetPosition(const glm::vec2& t_position) noexcept
 {
     m_position = t_position;
 }
 
-void sg::camera::OrthographicCamera::SetCameraVelocity(const float t_cameraVelocity)
+void sg::camera::OrthographicCamera::SetCameraVelocity(const float t_cameraVelocity) noexcept
 {
     m_cameraVelocity = t_cameraVelocity;
 }

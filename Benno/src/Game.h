@@ -35,7 +35,7 @@ namespace sg
 
         WindowOptions windowOptions{};
         ProjectionOptions projectionOptions{};
-        GameOptions gameOptions{};
+        const GameOptions gameOptions{};
 
         //-------------------------------------------------
         // Ctors. / Dtor.

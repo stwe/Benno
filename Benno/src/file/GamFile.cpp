@@ -27,13 +27,15 @@
 sg::file::GamFile::GamFile(
     GameLayer* t_parentLayer,
     const std::string& t_filePath,
-    std::shared_ptr<BshFile> t_bshFile,
-    std::shared_ptr<data::HousesJsonFile> t_housesJsonFile
+    std::shared_ptr<BshFile> t_stadtfldFile,
+    std::shared_ptr<data::HousesJsonFile> t_housesJsonFile,
+    const renderer::Zoom& t_zoom
 )
     : BinaryFile(t_filePath)
     , m_parentLayer{ t_parentLayer }
-    , m_bshFile{ std::move(t_bshFile) }
+    , m_stadtfldFile{ std::move(t_stadtfldFile) }
     , m_housesJsonFile{ std::move(t_housesJsonFile) }
+    , m_zoom{ t_zoom }
 {
     Log::SG_LOG_DEBUG("[GamFile::GamFile()] Creates GamFile object from file {}.", t_filePath);
 
@@ -205,12 +207,12 @@ void sg::file::GamFile::InitDeepWaterArea()
 
     m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(
         m_parentLayer->GetParentGame()->GetShaderManager(),
-        m_bshFile,
+        m_stadtfldFile,
         std::move(deepWaterModelMatrices),
         std::move(deepWaterTextureBuffer),
         std::move(intensityBuffer)
         );
-    m_deepWaterRenderer->Init(*m_parentLayer->GetCurrentZoom());
+    m_deepWaterRenderer->Init(m_zoom);
 }
 
 void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraphic>& t_graphicTiles)
@@ -228,19 +230,19 @@ void sg::file::GamFile::CreateDeepWaterGraphicTiles(std::vector<chunk::TileGraph
                 auto waterGfx{ m_housesJsonFile->GetBuildings().at(waterId).gfx };
                 waterGfx += (y + x * 3) % 12;
 
-                const auto& waterBshTexture{ m_bshFile->GetBshTexture(waterGfx) };
+                const auto& waterBshTexture{ m_stadtfldFile->GetBshTexture(waterGfx) };
 
                 chunk::TileGraphic deepWaterTileGraphic;
                 deepWaterTileGraphic.tileGfxInfo.gfxIndex = waterGfx;
                 deepWaterTileGraphic.mapPosition.x = x;
                 deepWaterTileGraphic.mapPosition.y = y;
 
-                auto screenPosition{ chunk::TileUtil::MapToScreen(x, y, m_parentLayer->GetCurrentZoom()->GetXRaster(), m_parentLayer->GetCurrentZoom()->GetYRaster()) };
+                auto screenPosition{ chunk::TileUtil::MapToScreen(x, y, m_zoom.GetXRaster(), m_zoom.GetYRaster()) };
 
                 const auto adjustHeight{ chunk::TileUtil::AdjustHeight(
-                    m_parentLayer->GetCurrentZoom()->GetYRaster(),
+                    m_zoom.GetYRaster(),
                     static_cast<int>(chunk::TileHeight::SEA_LEVEL),
-                    m_parentLayer->GetCurrentZoom()->GetElevation())
+                    m_zoom.GetElevation())
                 };
 
                 screenPosition.y += adjustHeight;
@@ -279,7 +281,7 @@ void sg::file::GamFile::InitIslandsArea()
     for (auto& island5 : m_island5List)
     {
         m_islandModels.emplace_back(std::make_unique<renderer::IslandModel>(
-            m_parentLayer->GetParentGame()->GetShaderManager(), *m_parentLayer->GetCurrentZoom(), island5.get(), m_bshFile)
+            m_parentLayer->GetParentGame()->GetShaderManager(), m_zoom, island5.get(), m_stadtfldFile)
         );
     }
 }

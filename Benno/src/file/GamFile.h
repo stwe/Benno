@@ -2,6 +2,7 @@
 
 #include "BinaryFile.h"
 #include "chunk/TileGraphic.h"
+#include "renderer/Zoom.h"
 
 namespace sg
 {
@@ -45,8 +46,9 @@ namespace sg::file
         GamFile(
             GameLayer* t_parentLayer,
             const std::string& t_filePath,
-            std::shared_ptr<BshFile> t_bshFile,
-            std::shared_ptr<data::HousesJsonFile> t_housesJsonFile
+            std::shared_ptr<BshFile> t_stadtfldFile,
+            std::shared_ptr<data::HousesJsonFile> t_housesJsonFile,
+            const renderer::Zoom& t_zoom
         );
 
         GamFile(const GamFile& t_other) = delete;
@@ -89,8 +91,9 @@ namespace sg::file
         static constexpr auto NO_ISLAND{ -1 };
 
         GameLayer* m_parentLayer{ nullptr };
-        std::shared_ptr<BshFile> m_bshFile;
+        std::shared_ptr<BshFile> m_stadtfldFile;
         std::shared_ptr<data::HousesJsonFile> m_housesJsonFile;
+        const renderer::Zoom m_zoom;
 
         std::vector<std::unique_ptr<chunk::Island5>> m_island5List;
 

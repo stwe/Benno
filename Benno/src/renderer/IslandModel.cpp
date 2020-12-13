@@ -21,7 +21,7 @@
 
 sg::renderer::IslandModel::IslandModel(
     std::shared_ptr<gl::ShaderManager> t_shaderManager,
-    Zoom& t_zoom,
+    const Zoom& t_zoom,
     chunk::Island5* t_parentIsland,
     std::shared_ptr<file::BshFile> t_bshFile
 )

@@ -36,16 +36,17 @@ namespace sg::camera
         // Getter
         //-------------------------------------------------
 
-        glm::vec2& GetPosition();
-        [[nodiscard]] glm::mat4 GetViewMatrix() const;
-        [[nodiscard]] glm::mat4 GetViewProjectionMatrix() const;
+        glm::vec2& GetPosition() noexcept;
+        [[nodiscard]] const glm::vec2& GetPosition() const noexcept;
+        [[nodiscard]] glm::mat4 GetViewMatrix() const noexcept;
+        [[nodiscard]] glm::mat4 GetViewProjectionMatrix() const noexcept;
 
         //-------------------------------------------------
         // Setter
         //-------------------------------------------------
 
-        void SetPosition(const glm::vec2& t_position);
-        void SetCameraVelocity(float t_cameraVelocity);
+        void SetPosition(const glm::vec2& t_position) noexcept;
+        void SetCameraVelocity(float t_cameraVelocity) noexcept;
 
         //-------------------------------------------------
         // Logic

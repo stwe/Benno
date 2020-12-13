@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <memory>
+#include <unordered_map>
 
 namespace sg::renderer
 {
@@ -15,7 +14,7 @@ namespace sg::renderer
 
         inline static const char* zoomMenuItems[] = { "SGFX", "MGFX", "GFX" };
 
-        Zoom() = delete;
+        Zoom() = default;
 
         Zoom(const ZoomId t_zoomId, const int t_xRaster, const int t_yRaster, const int t_elevation,
             const int t_defaultTileWidth, const int t_defaultTileHeight)
@@ -57,12 +56,12 @@ namespace sg::renderer
     public:
         ZoomFactory()
         {
-            m_zooms.emplace_back(std::make_unique<Zoom>(Zoom::ZoomId::SGFX, 8, 4, 4, 16, 8));
-            m_zooms.emplace_back(std::make_unique<Zoom>(Zoom::ZoomId::MGFX, 16, 8, 2, 32, 16));
-            m_zooms.emplace_back(std::make_unique<Zoom>(Zoom::ZoomId::GFX, 32, 16, 1, 64, 31));
+            m_zooms.emplace(Zoom::ZoomId::SGFX, Zoom(Zoom::ZoomId::SGFX, 8, 4, 4, 16, 8 ));
+            m_zooms.emplace(Zoom::ZoomId::MGFX, Zoom(Zoom::ZoomId::MGFX, 16, 8, 2, 32, 16));
+            m_zooms.emplace(Zoom::ZoomId::GFX, Zoom(Zoom::ZoomId::GFX, 32, 16, 1, 64, 31));
         }
 
-        [[nodiscard]] const std::vector<std::unique_ptr<Zoom>>& GetZooms() const noexcept
+        [[nodiscard]] const std::unordered_map<Zoom::ZoomId, Zoom>& GetZooms() const noexcept
         {
             return m_zooms;
         }
@@ -70,6 +69,6 @@ namespace sg::renderer
     protected:
 
     private:
-        std::vector<std::unique_ptr<Zoom>> m_zooms;
+        std::unordered_map<Zoom::ZoomId, Zoom> m_zooms;
     };
 }
