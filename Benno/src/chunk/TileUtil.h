@@ -7,6 +7,9 @@ namespace sg::chunk
 {
     struct TileUtil
     {
+        static constexpr auto NOT_SELECTED{ glm::vec3(1.0f) };
+        static constexpr auto SELECTED{ glm::vec3(0.5f) };
+
         static glm::vec2 ScreenToMap(float t_screenX, const float t_screenY, const int t_tileWidth, const int t_tileHeight)
         {
             const auto tileWidth{ static_cast<float>(t_tileWidth) };

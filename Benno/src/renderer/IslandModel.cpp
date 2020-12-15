@@ -194,7 +194,7 @@ void sg::renderer::IslandModel::CreateGraphicTiles()
         }
     }
 
-    m_intensityBuffer.resize(m_graphicTiles.size(), DARK);
+    m_intensityBuffer.resize(m_graphicTiles.size(), chunk::TileUtil::NOT_SELECTED);
 }
 
 void sg::renderer::IslandModel::CreateModelMatrices()

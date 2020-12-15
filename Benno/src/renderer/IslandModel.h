@@ -83,7 +83,6 @@ namespace sg::renderer
         static constexpr auto MIP_LEVEL_COUNT{ 1 };
         static constexpr auto MAX_TEXTURES{ 1000 };
 
-        static constexpr auto DARK{ glm::vec3(1.0f) };
         static constexpr auto NO_ISLAND{ -1 };
 
         std::shared_ptr<gl::ShaderManager> m_shaderManager;

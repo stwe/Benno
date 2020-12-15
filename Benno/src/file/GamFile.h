@@ -91,8 +91,6 @@ namespace sg::file
     protected:
 
     private:
-        static constexpr auto DARK{ glm::vec3(1.0f) };
-        static constexpr auto BRIGHT{ glm::vec3(2.0f, 2.0f, 1.0f) };
         static constexpr auto NO_DEEP_WATER{ -1 };
         static constexpr auto NO_ISLAND{ -1 };
 

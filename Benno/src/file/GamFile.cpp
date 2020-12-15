@@ -121,7 +121,7 @@ void sg::file::GamFile::Update(const int t_mapX, const int t_mapY)
 
         if (index > NO_DEEP_WATER)
         {
-            m_deepWaterRenderer->UpdateIntensity(index, BRIGHT);
+            m_deepWaterRenderer->UpdateIntensity(index, chunk::TileUtil::SELECTED);
         }
         else
         {
@@ -130,7 +130,7 @@ void sg::file::GamFile::Update(const int t_mapX, const int t_mapY)
                 index = islandModel->IslandTileInVbo(t_mapX, t_mapY);
                 if (index > NO_ISLAND)
                 {
-                    islandModel->UpdateIntensity(index, BRIGHT);
+                    islandModel->UpdateIntensity(index, chunk::TileUtil::SELECTED);
                 }
             }
         }
@@ -224,7 +224,7 @@ void sg::file::GamFile::InitDeepWaterArea()
         deepWaterTextureBuffer.push_back(tile.tileGfxInfo.gfxIndex - renderer::DeepWaterRenderer::START_GFX_INDEX);
     }
 
-    intensityBuffer.resize(deepWaterGraphicTiles.size(), DARK);
+    intensityBuffer.resize(deepWaterGraphicTiles.size(), chunk::TileUtil::NOT_SELECTED);
 
     m_deepWaterRenderer = std::make_unique<renderer::DeepWaterRenderer>(
         m_parentLayer->GetParentGame()->GetShaderManager(),
